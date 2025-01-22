@@ -1,5 +1,5 @@
 import winston from "winston";
-import discordLogger from "./discordLogging.utils.js";
+import discordLogger from "./discordLogging.js";
 
 // Create custom Discord transport using Transport class
 class DiscordTransport extends winston.Transport {

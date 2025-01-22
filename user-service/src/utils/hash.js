@@ -1,4 +1,5 @@
-import { genSalt, hash, compare } from 'bcryptjs';
+import pkg from 'bcryptjs';
+const { hash, compare, genSalt } = pkg;
 
 const hashPassword = async (password) => {
   if (!isValidPassword(password)) {

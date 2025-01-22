@@ -1,6 +1,6 @@
 import app from './src/app.js';
 import connectDB from './src/database/dbConnection.js';
-import { info, error } from './src/utils/errorLogger.utils.js';
+import { info, error } from './src/utils/errorLogger.js';
 import dotenv from 'dotenv';
 
 // Load environment variables

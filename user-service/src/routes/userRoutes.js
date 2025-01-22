@@ -3,14 +3,16 @@ import {
   getUserProfile,
   updateUserProfile,
   updatePreferences,
-  uploadProfilePic,
+  uploadOrEditProfilePic,
+  deleteProfilePic,
   updatePrivacySettings,
   getFollowers,
   getFollowing,
   deactivateAccount,
   deleteAccount,
 } from "../controllers/userController.js";
-import { authenticate, authorizeUser } from "../middleware/authMiddleware.js";
+import { authenticate } from "../middlewares/authMiddleware.js";
+import { uploadProfilePic } from "../middlewares/upload.js";
 
 const router = express.Router();
 
@@ -23,8 +25,11 @@ router.put("/profile", authenticate, updateUserProfile); // Update profile info
 // Update user preferences (e.g., travel style, budget, etc.)
 router.put("/preferences", authenticate, updatePreferences); // Update preferences
 
-// Upload profile picture
-router.put("/profile/picture", authenticate, uploadProfilePic); // Upload new profile picture
+// Upload or edit profile picture
+router.post('/profile-pic', authenticate, uploadProfilePic, uploadOrEditProfilePic);
+
+// Delete profile picture
+router.delete('/profile-pic', authenticate, deleteProfilePic);
 
 // Update privacy settings (e.g., make profile public/private)
 router.put("/profile/privacy", authenticate, updatePrivacySettings); // Update privacy settings

@@ -12,3 +12,10 @@
 {"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-21T13:58:06.505Z"}
 {"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-21T13:58:06.508Z"}
 {"level":"info","message":"Shutting down server","timestamp":"2025-01-21T14:03:44.595Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-22T12:14:48.305Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-22T12:14:53.193Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-22T12:14:57.591Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-22T12:14:59.323Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-01.ir5vs.mongodb.net","timestamp":"2025-01-22T12:14:59.713Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-22T12:14:59.713Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-22T12:14:59.717Z"}

@@ -1,5 +1,5 @@
 import pkg from "mongoose";
-import { info, error, warn } from "../utils/errorLogger.utils.js";
+import { info, error, warn } from "../utils/errorLogger.js";
 
 const { connect, connection } = pkg;
 
