@@ -1,8 +1,7 @@
-
 import express, { json, urlencoded } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import userRoutes from './routes/user.routes.js';
+
 
 const app = express();
 
@@ -12,8 +11,12 @@ app.use(cors()); // Enable CORS
 app.use(json()); // Parse JSON bodies
 app.use(urlencoded({ extended: true })); // Parse URL-encoded bodies
 
+import userRoutes from './routes/userRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+
 // API Routes
 app.use('/api/identity', userRoutes);
+app.use('/api/auth', authRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -8,6 +8,9 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 
+// Test logging
+info("Starting application...");
+
 // Connect to MongoDB
 connectDB()
     .then(() => {
@@ -29,8 +32,9 @@ connectDB()
 
 
 // Handle uncaught exceptions
-process.on('uncaughtException', (err) => {
-  error(`Uncaught Exception: ${err.message}`);
+
+process.on("uncaughtException", (err) => {
+  error(`Uncaught Exception: ${err.stack}`); // Use err.stack for full trace
   process.exit(1);
 });
 

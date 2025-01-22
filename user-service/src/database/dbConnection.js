@@ -1,13 +1,14 @@
-import { connect, connection } from "mongoose";
+import pkg from "mongoose";
 import { info, error, warn } from "../utils/errorLogger.utils.js";
+
+const { connect, connection } = pkg;
 
 const connectDB = async () => {
   try {
     const conn = await connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: false,
+      // Removed unsupported options
     });
 
     info(`MongoDB Connected: ${conn.connection.host}`);
