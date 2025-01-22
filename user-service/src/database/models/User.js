@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-  userId: { type: String, required: true, unique: true },
   username: { type: String, required: true, unique: true },
   firstName: String,
   lastName: String,
@@ -10,6 +9,11 @@ const userSchema = new mongoose.Schema({
   profilePicture: String,
   bio: String,
   location: String,
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
 
   // Social Media Links
   socialMediaLinks: [
@@ -17,12 +21,11 @@ const userSchema = new mongoose.Schema({
   ],
 
   // Authentication and Security
-  passwordHash: {
+  password: {
     type: String,
     required: true,
     minlength: 6,
-    match: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
-    select: false,
+    select: false, // This ensures the password is not included in queries
   },
   authProvider: {
     type: String,

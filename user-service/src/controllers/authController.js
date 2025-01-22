@@ -36,24 +36,21 @@ export const signUp = async (req, res) => {
 
 // Login route (for users)
 export const login = [
-  // Middleware to check login attempts before actual login logic
   async (req, res, next) => {
-    try {
-      const { email } = req.body;
-      await checkLoginAttempts(email); // Call the checkLoginAttempts function here
-      next(); // If no error, proceed to loginService
-    } catch (err) {
-      return res.status(400).json({ message: err.message }); // Send the error if too many attempts
+    if (!req.body || !req.body.email || !req.body.password) {
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
     }
+    const { email } = req.body;
+    await checkLoginAttempts(email);
+    next();
   },
 
-  // Actual login logic
   async (req, res) => {
     try {
       const { email, password } = req.body;
-
       const response = await loginService({ email, password });
-
       return res.status(200).json(response);
     } catch (err) {
       error(err);
@@ -62,19 +59,23 @@ export const login = [
   },
 ];
 
+
 // Admin sign-up route
 export const adminSignUp = async (req, res) => {
   try {
     const { username, email, password, firstName, lastName } = req.body;
 
-    const response = await adminSignUpService({
+    // Add role automatically in the controller
+    const adminData = {
       username,
       email,
       password,
       firstName,
       lastName,
-    });
+      role: "admin",
+    };
 
+    const response = await adminSignUpService(adminData);
     return res.status(201).json(response);
   } catch (err) {
     error(err);

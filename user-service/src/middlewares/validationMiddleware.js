@@ -50,10 +50,10 @@ export const validateAdminSignUp = (req, res, next) => {
       .max(30)
       .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/)
       .required(),
-    confirmPassword: Joi.ref("password"), // Ensures confirmPassword matches password
+    confirmPassword: Joi.ref("password"),
     firstName: Joi.string().optional(),
     lastName: Joi.string().optional(),
-    role: Joi.string().valid("admin").required(), // Admin-specific role field
+    // Remove the role validation since it will be set automatically
   });
 
   const { error } = schema.validate(req.body);
@@ -64,6 +64,7 @@ export const validateAdminSignUp = (req, res, next) => {
 
   next();
 };
+
 
 // 4. Admin Login validation
 export const validateAdminLogin = (req, res, next) => {

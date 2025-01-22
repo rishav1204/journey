@@ -1,13 +1,12 @@
 import User from "../database/models/User.js";
 import { generateToken } from "../utils/tokenUtils.js";
-import hashPassword from "../utils/hash.js";
-import comparePassword from "../utils/hash.js";
+import hashUtils from "../utils/hash.js";  // Import the default export as `hashUtils`
 import { sendEmail } from "../services/emailServices.js";
+const { hashPassword, comparePassword } = hashUtils;  // Destructure the functions from the default export
 
 // Sign up a new user
 export const signUpService = async (userData) => {
   const { email, password } = userData;
-
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     throw new Error("User already exists");
@@ -21,10 +20,14 @@ export const signUpService = async (userData) => {
 };
 
 // Log in a user
-export const loginService = async (email, password) => {
-  const user = await User.findOne({ email });
+export const loginService = async ({ email, password }) => {
+  const user = await User.findOne({ email }).select("+password"); // Add .select('+password') to include the password field
   if (!user) {
     throw new Error("User not found");
+  }
+
+  if (!user.password || !password) {
+    throw new Error("Invalid credentials");
   }
 
   const isPasswordValid = await comparePassword(password, user.password);
@@ -36,34 +39,36 @@ export const loginService = async (email, password) => {
   return { message: "Login successful", token };
 };
 
+
+
 // Admin Sign-Up
 export const adminSignUpService = async (userData) => {
-  const { email, password } = userData;
-
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ email: userData.email });
   if (existingUser) {
     throw new Error("Admin already exists");
   }
 
-  const hashedPassword = await hashPassword(password);
-  const newAdmin = new User({
+  const hashedPassword = await hashPassword(userData.password);
+  const adminData = {
     ...userData,
     password: hashedPassword,
-    role: "admin",
-  });
+    role: "admin", // Automatically set role to admin
+  };
+
+  const newAdmin = new User(adminData);
   await newAdmin.save();
 
   return { message: "Admin sign-up successful", userId: newAdmin._id };
 };
 
 // Admin Login
-export const adminLoginService = async (email, password) => {
-  const user = await User.findOne({ email });
+export const adminLoginService = async ({ email, password }) => {
+  const user = await User.findOne({ email: email }).select("+password");
   if (!user || user.role !== "admin") {
     throw new Error("Admin not found or invalid credentials");
   }
 
-  const isPasswordValid = await verifyPassword(password, user.password);
+  const isPasswordValid = await comparePassword(password, user.password);
   if (!isPasswordValid) {
     throw new Error("Invalid credentials");
   }
@@ -72,9 +77,10 @@ export const adminLoginService = async (email, password) => {
   return { message: "Admin login successful", token };
 };
 
+
 // Reset password
-export const resetPasswordService = async (email) => {
-  const user = await User.findOne({ email });
+export const resetPasswordService = async ({ email }) => {
+  const user = await User.findOne({ email: email }); // Extract email from the object
   if (!user) {
     throw new Error("User not found");
   }
@@ -88,6 +94,7 @@ export const resetPasswordService = async (email) => {
 
   return { message: "Password reset email sent" };
 };
+
 
 // Verify email
 export const verifyEmailService = async (token) => {
