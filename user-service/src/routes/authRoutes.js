@@ -3,11 +3,11 @@ import {
   signUp,
   login,
   resetPassword,
-  verifyEmail,
   logout,
   socialLogin,
   adminSignUp,
   adminLogin,
+  forgotPassword,
 } from "../controllers/authController.js";
 import {
   sendOTPController,
@@ -44,11 +44,11 @@ router.post('/send-otp', validateEmail, sendOTPController);
 // Route to verify OTP
 router.post('/verify-otp', verifyOTPController);
 
+// Forgot password - initiates the password reset process by sending OTP
+router.post("/forgot-password", rateLimiter, validateEmail, forgotPassword);
+
 // Reset password (email sent to reset the password)
 router.post("/reset-password", rateLimiter, validateResetPassword, resetPassword); // Reset password process
-
-// Email verification route (user verification)
-router.get("/verify-email/:token", verifyEmail); // Verify email using token
 
 // Social media login (Google/Facebook)
 router.post("/social-login", rateLimiter, socialLogin); // Login via social media (Google, Facebook)

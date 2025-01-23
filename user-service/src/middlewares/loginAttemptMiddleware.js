@@ -1,9 +1,11 @@
 import User from "../database/models/User.js";
+import { error } from "../utils/errorLogger.js";
 
 export const checkLoginAttempts = async (email) => {
   const user = await User.findOne({ email });
 
   if (!user) {
+    error("User not found");
     throw new Error("User not found");
   }
 
@@ -12,6 +14,7 @@ export const checkLoginAttempts = async (email) => {
 
   // If user is locked out, check the lockUntil field
   if (user.lockUntil && user.lockUntil > Date.now()) {
+    error("Account is locked out, try again after 1 minute");
     throw new Error("Account locked. Try again later");
   }
 
@@ -19,6 +22,7 @@ export const checkLoginAttempts = async (email) => {
     // Lock user for the specified duration
     user.lockUntil = Date.now() + lockTime;
     await user.save();
+    error("Account locked due to too many failed attempts");
     throw new Error("Account locked due to too many failed attempts");
   }
 

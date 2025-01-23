@@ -10,6 +10,7 @@ export const authenticate = async (req, res, next) => {
 
     // If there's no token
     if (!token) {
+      error("No token provided");
       return res
         .status(401)
         .json({ message: "Access denied. No token provided." });
@@ -23,6 +24,7 @@ export const authenticate = async (req, res, next) => {
 
     // If user doesn't exist or token is invalid
     if (!user) {
+      error("Invalid token");
       return res.status(401).json({ message: "Invalid token." });
     }
 

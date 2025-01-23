@@ -1,15 +1,22 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-  userId: { type: String, required: true, unique: true },
   username: { type: String, required: true, unique: true },
   firstName: String,
   lastName: String,
+  dob: Date,
+  gender: { type: String, enum: ["Male", "Female", "Other"] },
+  address: String,
   email: { type: String, unique: true, required: true },
   phoneNumber: String,
   profilePicture: String,
   bio: String,
   location: String,
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
 
   // Social Media Links
   socialMediaLinks: [
@@ -17,12 +24,11 @@ const userSchema = new mongoose.Schema({
   ],
 
   // Authentication and Security
-  passwordHash: {
+  password: {
     type: String,
     required: true,
     minlength: 6,
-    match: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
-    select: false,
+    select: false, // This ensures the password is not included in queries
   },
   authProvider: {
     type: String,
@@ -36,7 +42,9 @@ const userSchema = new mongoose.Schema({
     enum: ["Active", "Deactivated", "Banned"],
     default: "Active",
   },
-  lastActive: Date,
+  deactivationReason: String,
+  deactivatedAt: Date,
+  lastActive: { type: Date, default: Date.now, select: true },
   twoFactorEnabled: { type: Boolean, default: false },
   twoFactorSecret: String, // Encrypted TOTP secret for 2FA
 
@@ -68,6 +76,13 @@ const userSchema = new mongoose.Schema({
   emailNotificationsEnabled: { type: Boolean, default: true },
   darkMode: { type: Boolean, default: false },
   language: { type: String, default: "en" },
+
+  // Add this section under Authentication and Security or create a new Privacy Settings section
+  privacySettings: {
+    isProfilePublic: { type: Boolean, default: true },
+    showEmail: { type: Boolean, default: false },
+    showPhoneNumber: { type: Boolean, default: false },
+  },
 
   // Subscription Reference (minimal data)
   subscriptionId: { type: mongoose.Schema.Types.ObjectId, ref: "Subscription" }, // Points to subscription-service

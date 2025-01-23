@@ -40,9 +40,9 @@ const logToDiscord = async (message, level = "info") => {
 
     console.log("Discord log sent successfully:", response.id);
     return true;
-  } catch (error) {
-    console.error("Discord logging failed:", error);
-    throw error;
+  } catch (err) {
+    console.log("Discord logging failed:", error);
+    throw err;
   }
 };
 

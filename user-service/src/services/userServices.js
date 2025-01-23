@@ -1,7 +1,11 @@
 import fs from "fs";
-import path from "path";
+import { promisify } from "util";
 import User from "../database/models/User.js"; // Assuming User model for user data
-import { error } from "../utils/errorLogger.js"; // Importing error logger
+import { error } from "../utils/errorLogger.js";// Importing error logger
+import hashUtils from "../utils/hash.js";
+const { comparePassword } = hashUtils;  // Destructure the functions from the default export
+
+const unlinkAsync = promisify(fs.unlink);
 
 // Get user profile
 export const getUserProfileService = async (userId) => {
@@ -37,102 +41,93 @@ export const updateUserProfileService = async (userId, updateData) => {
 
 // Update user preferences (travel style, budget, etc.)
 export const updatePreferencesService = async (userId, preferencesData) => {
-  try {
-    // Assuming preferences are stored in the same user model
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { preferences: preferencesData },
-      { new: true }
-    );
-    if (!updatedUser) {
-      throw new Error("User not found");
-    }
-    return updatedUser.preferences; // Return updated preferences
-  } catch (err) {
-    error(err);
-    throw err;
-  }
+  const { travelStyle, preferences } = preferencesData;
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        travelStyle: travelStyle,
+        preferences: preferences,
+      },
+    },
+    { new: true }
+  );
+
+  return {
+    success: true,
+    data: {
+      travelStyle: updatedUser.travelStyle,
+      preferences: updatedUser.preferences,
+    },
+  };
 };
 
 // Upload or edit profile picture
-export const uploadOrEditProfilePicService = async (userId, file) => {
-  try {
-    // Check if a file is uploaded
-    if (!file) {
-      throw new Error("No file uploaded");
-    }
+export const uploadOrEditProfilePicService = async (userId, filePath) => {
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { profilePicture: filePath },
+    { new: true }
+  );
 
-    // Assuming you're storing the image in a local folder or cloud
-    const profilePicUrl = `https://yourcdn.com/${file.filename}`; // Replace with your actual URL logic
-
-    // Update the user's profile picture URL
-    const updatedUserProfile = await User.findByIdAndUpdate(
-      userId,
-      { profilePic: profilePicUrl },
-      { new: true }
-    );
-
-    if (!updatedUserProfile) {
-      throw new Error("User not found");
-    }
-
-    return updatedUserProfile;
-  } catch (err) {
-    error(err);
-    throw err;
+  if (!updatedUser) {
+    throw new Error("User not found");
   }
+
+  return {
+    success: true,
+    message: "Profile picture uploaded successfully",
+    data: {
+      profilePicture: updatedUser.profilePicture,
+    },
+  };
 };
 
 // Delete profile picture
 export const deleteProfilePicService = async (userId) => {
-  try {
-    const user = await User.findById(userId);
-    if (!user) {
-      throw new Error("User not found");
+  const user = await User.findById(userId);
+
+  if (user.profilePicture) {
+    try {
+      await unlinkAsync(user.profilePicture);
+    } catch (error) {
+      // File might not exist, continue with DB update
     }
-
-    // If a profile picture exists, delete the file from the server (if stored locally)
-    if (user.profilePic) {
-      const filePath = path.join(
-        __dirname,
-        "..",
-        "uploads",
-        "profile-pics",
-        path.basename(user.profilePic)
-      );
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath); // Delete the file
-      }
-    }
-
-    // Remove the profile picture URL from the user's record
-    user.profilePic = null;
-    await user.save();
-
-    return user;
-  } catch (err) {
-    error(err);
-    throw err;
   }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { profilePicture: null },
+    { new: true }
+  );
+
+  return {
+    success: true,
+    message: "Profile picture deleted successfully",
+    data: {
+      profilePicture: updatedUser.profilePicture,
+    },
+  };
 };
 
 // Update privacy settings (make profile public/private)
 export const updatePrivacySettingsService = async (userId, privacyData) => {
-  try {
-    const updatedPrivacySettings = await User.findByIdAndUpdate(
-      userId,
-      { privacySettings: privacyData },
-      { new: true }
-    );
-    if (!updatedPrivacySettings) {
-      throw new Error("User not found");
-    }
-    return updatedPrivacySettings;
-  } catch (err) {
-    error(err);
-    throw err;
-  }
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { privacySettings: privacyData },
+    { new: true }
+  ).select("privacySettings");
+
+  return {
+    success: true,
+    message: "Privacy settings updated successfully",
+    data: {
+      privacySettings: updatedUser.privacySettings,
+    },
+  };
 };
+
 
 // Get followers list
 export const getFollowersService = async (userId) => {
@@ -169,21 +164,38 @@ export const getFollowingService = async (userId) => {
 };
 
 // Account deactivation (User only)
-export const deactivateAccountService = async (userId) => {
-  try {
-    const deactivatedUser = await User.findByIdAndUpdate(
-      userId,
-      { active: false },
-      { new: true }
-    );
-    if (!deactivatedUser) {
-      throw new Error("User not found");
-    }
-    return deactivatedUser;
-  } catch (err) {
-    error(err);
-    throw err;
+export const deactivateAccountService = async (userId, reason, password) => {
+  // First fetch the user with password field
+  const user = await User.findById(userId).select("+password");
+
+  if (!user) {
+    throw new Error("User not found");
   }
+
+  if (!user.password) {
+    throw new Error("Password not set for this user");
+  }
+
+  // Verify password
+  const isPasswordValid = await comparePassword(password, user.password);
+  if (!isPasswordValid) {
+    throw new Error("Invalid password");
+  }
+
+  // Proceed with deactivation
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        accountStatus: "deactivated",
+        deactivationReason: reason,
+        deactivatedAt: new Date(),
+      },
+    },
+    { new: true }
+  );
+
+  return updatedUser;
 };
 
 // Account deletion (User only)
@@ -198,4 +210,26 @@ export const deleteAccountService = async (userId) => {
     error(err);
     throw err;
   }
+};
+
+export const createPreferencesService = async (userId, preferencesData) => {
+  const { travelStyle, preferences } = preferencesData;
+  const user = await User.findByIdAndUpdate(
+    userId,
+    {
+      travelStyle,
+      preferences: {
+        transportation: preferences.transportation,
+        budget: preferences.budget,
+        accommodation: preferences.accommodation,
+        activityType: preferences.activityType,
+      },
+    },
+    { new: true }
+  );
+
+  return {
+    success: true,
+    data: { travelStyle: user.travelStyle, preferences: user.preferences },
+  };
 };

@@ -2,6 +2,7 @@ import express from "express";
 import {
   getUserProfile,
   updateUserProfile,
+  createPreferences,
   updatePreferences,
   uploadOrEditProfilePic,
   deleteProfilePic,
@@ -13,6 +14,7 @@ import {
 } from "../controllers/userController.js";
 import { authenticate } from "../middlewares/authMiddleware.js";
 import { uploadProfilePic } from "../middlewares/upload.js";
+import { validatePreferences } from "../middlewares/validationMiddleware.js";
 
 const router = express.Router();
 
@@ -21,6 +23,13 @@ router.get("/profile", authenticate, getUserProfile); // View user profile
 
 // Update user profile (including bio, location, etc.)
 router.put("/profile", authenticate, updateUserProfile); // Update profile info
+
+router.post(
+  "/preferences",
+  authenticate,
+  validatePreferences,
+  createPreferences
+);
 
 // Update user preferences (e.g., travel style, budget, etc.)
 router.put("/preferences", authenticate, updatePreferences); // Update preferences

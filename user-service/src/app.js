@@ -1,15 +1,13 @@
-import express, { json, urlencoded } from 'express';
+import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 
 
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Middleware
-app.use(helmet()); // Security headers
-app.use(cors()); // Enable CORS
-app.use(json()); // Parse JSON bodies
-app.use(urlencoded({ extended: true })); // Parse URL-encoded bodies
+
 
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
