@@ -1,4 +1,3 @@
-import nodemailer from "nodemailer";
 import OTP from "../database/models/Otp.js"; // Import OTP model
 import { generateOTP } from "../utils/otp.js";
 import { sendEmail } from "../services/emailServices.js"; 
@@ -29,8 +28,8 @@ export const sendOTP = async (email) => {
     );
 
     return { message: "OTP sent successfully" };
-  } catch (error) {
-    console.error("Error sending OTP:", error);
+  } catch (err) {
+    error("Error sending OTP:", error);
     throw new Error("Unable to send OTP");
   }
 };

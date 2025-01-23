@@ -71,6 +71,7 @@ export const uploadOrEditProfilePic = async (req, res) => {
     const result = await uploadOrEditProfilePicService(req.user._id, req.file.path);
     return res.status(200).json(result);
   } catch (error) {
+    error(error); // Log the error using error logger
     return res.status(500).json({
       success: false,
       message: "Error uploading profile picture",
@@ -86,6 +87,7 @@ export const deleteProfilePic = async (req, res) => {
     const result = await deleteProfilePicService(req.user._id);
     return res.status(200).json(result);
   } catch (error) {
+    error(error); // Log the error using error logger
     return res.status(500).json({
       success: false,
       message: "Error deleting profile picture",
@@ -104,6 +106,7 @@ export const updatePrivacySettings = async (req, res) => {
     });
     return res.status(200).json(result);
   } catch (error) {
+    error(error); // Log the error using error logger
     return res.status(500).json({
       success: false,
       message: "Error updating privacy settings",
@@ -180,6 +183,7 @@ export const createPreferences = async (req, res) => {
     });
     res.status(201).json(result);
   } catch (error) {
+    error(error); // Log the error using error logger
     res.status(400).json({ success: false, message: error.message });
   }
 };

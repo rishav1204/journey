@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
+import { error } from "../utils/errorLogger.js";
 dotenv.config();
 
 // Create a reusable transporter object using SMTP transport
@@ -35,8 +36,8 @@ export const sendEmail = async (to, subject, text, html) => {
 
     await transporter.sendMail(mailOptions);
     return { message: "Email sent successfully" };
-  } catch (error) {
-    console.error("Error sending email:", error);
+  } catch (err) {
+    error("Error sending email:", error);
     throw new Error("Failed to send email");
   }
 };

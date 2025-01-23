@@ -18,6 +18,7 @@ export const validateSignUp = (req, res, next) => {
   const { error } = schema.validate(req.body);
 
   if (error) {
+    error(error.message);
     return res.status(400).json({ message: error.details[0].message });
   }
 
@@ -34,6 +35,7 @@ export const validateLogin = (req, res, next) => {
   const { error } = schema.validate(req.body);
 
   if (error) {
+    error(error.message);
     return res.status(400).json({ message: error.details[0].message });
   }
 
@@ -59,6 +61,7 @@ export const validateAdminSignUp = (req, res, next) => {
   const { error } = schema.validate(req.body);
 
   if (error) {
+    error(error.message);
     return res.status(400).json({ message: error.details[0].message });
   }
 
@@ -76,6 +79,7 @@ export const validateAdminLogin = (req, res, next) => {
   const { error } = schema.validate(req.body);
 
   if (error) {
+    error(error.message);
     return res.status(400).json({ message: error.details[0].message });
   }
 
@@ -98,6 +102,7 @@ export const validateResetPassword = (req, res, next) => {
   const { error } = schema.validate(req.body);
 
   if (error) {
+    error(error.message);
     return res.status(400).json({ message: error.details[0].message });
   }
 
@@ -114,6 +119,7 @@ export const validateSocialLogin = (req, res, next) => {
   const { error } = schema.validate(req.body);
 
   if (error) {
+    error(error.message);
     return res.status(400).json({ message: error.details[0].message });
   }
 
@@ -135,6 +141,7 @@ export const validatePreferences = (req, res, next) => {
   const { preferences } = req.body;
 
   if (!preferences || typeof preferences !== "object") {
+    error(error.message);
     return res.status(400).json({
       success: false,
       message: "Preferences object is required",
@@ -150,6 +157,7 @@ export const validatePreferences = (req, res, next) => {
   const missingFields = requiredFields.filter((field) => !preferences[field]);
 
   if (missingFields.length > 0) {
+    error(error.message);
     return res.status(400).json({
       success: false,
       message: `Missing required fields: ${missingFields.join(", ")}`,

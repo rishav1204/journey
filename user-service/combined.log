@@ -216,3 +216,36 @@
 {"level":"info","message":"MongoDB Connected: journey-shard-00-01.ir5vs.mongodb.net","timestamp":"2025-01-23T07:10:47.053Z"}
 {"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T07:10:47.055Z"}
 {"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T07:10:47.058Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T10:54:56.907Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T10:54:59.510Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-01.ir5vs.mongodb.net","timestamp":"2025-01-23T10:54:59.954Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T10:54:59.956Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T10:54:59.959Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:00.196Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:00.679Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:01.155Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:01.554Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:01.976Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:02.455Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:02.966Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:03.386Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:03.804Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:04.272Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:04.695Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:05.156Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:05.552Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:06.007Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:06.400Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:06.893Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:07.388Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:07.801Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:08.223Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:08.623Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:09.081Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:09.501Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:10.027Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:10.699Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:11.257Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:11.676Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:12.150Z"}
+{"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:12.586Z"}

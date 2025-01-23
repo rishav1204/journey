@@ -150,8 +150,8 @@ export const resetPassword = async (req, res) => {
     });
 
     return res.status(200).json(response);
-  } catch (error) {
-    console.error("Error in reset password:", error);
+  } catch (err) {
+    error("Error in reset password:", error);
 
     if (error.message === "Invalid OTP") {
       return res.status(400).json({ message: error.message });

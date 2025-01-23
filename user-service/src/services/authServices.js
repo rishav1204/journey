@@ -3,6 +3,7 @@ import OTP from "../database/models/Otp.js";
 import { generateToken } from "../utils/tokenUtils.js";
 import hashUtils from "../utils/hash.js";  // Import the default export as `hashUtils`
 import { sendOTPPasswordReset } from "./otpServices.js";
+import { error } from "../utils/errorLogger.js";
 const { hashPassword, comparePassword } = hashUtils;  // Destructure the functions from the default export
 
 // Sign up a new user
@@ -10,7 +11,7 @@ export const signUpService = async (userData) => {
   const { email, password } = userData;
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    throw new Error("User already exists");
+    throw new Error("Email already registered");
   }
 
   const hashedPassword = await hashPassword(password);
@@ -25,7 +26,7 @@ export const loginService = async ({ email, password, deviceInfo }) => {
   const user = await User.findOne({ email }).select("+password");
 
   if (!user) {
-    throw new Error("User not found");
+    throw new Error("Please sign up first");
   }
 
   if (!user.password || !password) {
@@ -153,9 +154,6 @@ export const logoutService = async (user, token) => {
 
     // Invalidate the token by adding it to a blacklist
     await addToTokenBlacklist(token);
-
-    // Log the event
-    info(`User with ID: ${user._id} has successfully logged out.`);
 
     return { message: "Logout successful" };
   } catch (err) {

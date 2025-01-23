@@ -1,4 +1,5 @@
 import { WebhookClient } from "discord.js";
+import { error } from "../utils/errorLogger.js"
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -38,10 +39,10 @@ const logToDiscord = async (message, level = "info") => {
       embeds: [embed],
     });
 
-    console.log("Discord log sent successfully:", response.id);
+    error("Discord log sent successfully:", response.id);
     return true;
-  } catch (error) {
-    console.error("Discord logging failed:", error);
+  } catch (err) {
+    error("Discord logging failed:", error);
     throw error;
   }
 };
