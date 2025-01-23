@@ -1,8 +1,10 @@
 import User from "../database/models/User.js";
+import OTP from "../database/models/Otp.js";
 import { generateToken } from "../utils/tokenUtils.js";
 import hashUtils from "../utils/hash.js";  // Import the default export as `hashUtils`
 import { sendEmail } from "../services/emailServices.js";
 import { generateOTP } from "../utils/otp.js";
+import { sendOTPPasswordReset } from "./otpServices.js";
 const { hashPassword, comparePassword } = hashUtils;  // Destructure the functions from the default export
 
 // Sign up a new user
@@ -79,54 +81,30 @@ export const adminLoginService = async ({ email, password }) => {
 };
 
 
-// Reset password
-export const resetPasswordService = async ({ email }) => {
-  const user = await User.findOne({ email });
-  if (!user) {
-    throw new Error("User not found");
+export const resetPasswordService = async ({ email, otp, newPassword }) => {
+  // Verify OTP
+  const otpRecord = await OTP.findOne({ email, otp });
+  if (!otpRecord) {
+    throw new Error("Invalid OTP");
   }
 
-  // Generate OTP using utility function
-  const otp = generateOTP();
-
-  // Store OTP and its expiry
-  user.resetPasswordOTP = otp;
-  user.resetPasswordOTPExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-  await user.save();
-
-  // Using generic sendEmail function
-  await sendEmail(
-    email,
-    "Password Reset OTP",
-    `Your OTP for password reset is: ${otp}. This code will expire in 10 minutes.`,
-    `
-    <div style="text-align: center;">
-      <h1>Password Reset OTP</h1>
-      <h2 style="font-size: 24px; font-weight: bold;">${otp}</h2>
-      <p>Use this OTP to reset your password. It will expire in 10 minutes.</p>
-      <p>If you didn't request this, please ignore this email.</p>
-    </div>
-    `
-  );
-
-  return { message: "OTP sent to your email" };
-};
-
-
-// Verify email
-export const verifyEmailService = async (token) => {
-  const { userId } = verifyToken(token);
-  const user = await User.findById(userId);
-
-  if (!user) {
-    throw new Error("Invalid token or user not found");
+  if (otpRecord.expiresAt < Date.now()) {
+    await OTP.deleteOne({ _id: otpRecord._id });
+    throw new Error("OTP expired");
   }
 
-  user.isVerified = true;
-  await user.save();
+  // Hash new password
+  const hashedPassword = await hashPassword(newPassword);
 
-  return { message: "Email verified successfully" };
+  // Update user's password
+  await User.findOneAndUpdate({ email }, { password: hashedPassword });
+
+  // Delete used OTP
+  await OTP.deleteOne({ _id: otpRecord._id });
+
+  return { message: "Password reset successful" };
 };
+
 
 // Social login
 export const socialLoginService = async ({ provider, token }) => {
@@ -165,4 +143,20 @@ export const logoutService = async (user, token) => {
     error(`Error during logout for user ${user?._id || "unknown"}: ${err}`);
     throw new Error("Logout failed. Please try again.");
   }
+};
+
+export const forgotPasswordService = async ({ email }) => {
+  // Check if user exists
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  // Send OTP for password reset
+  await sendOTPPasswordReset(email);
+
+  return {
+    message: "Password reset OTP sent successfully",
+    email: email,
+  };
 };

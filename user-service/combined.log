@@ -66,3 +66,148 @@
 {"level":"info","message":"MongoDB Connected: journey-shard-00-02.ir5vs.mongodb.net","timestamp":"2025-01-23T04:48:41.017Z"}
 {"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T04:48:41.018Z"}
 {"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T04:48:41.022Z"}
+{"level":"warn","message":"MongoDB connection disconnected","timestamp":"2025-01-23T05:06:31.150Z"}
+{"level":"info","message":"Mongoose connected to MongoDB","timestamp":"2025-01-23T05:06:32.387Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:12:28.169Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:12:30.233Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-00.ir5vs.mongodb.net","timestamp":"2025-01-23T05:12:30.833Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:12:30.834Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:12:30.838Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:12:50.379Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:12:52.171Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-00.ir5vs.mongodb.net","timestamp":"2025-01-23T05:12:52.715Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:12:52.717Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:12:52.720Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:13:06.358Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:13:08.123Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-01.ir5vs.mongodb.net","timestamp":"2025-01-23T05:13:08.592Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:13:08.593Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:13:08.596Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:13:38.299Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:13:40.043Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-02.ir5vs.mongodb.net","timestamp":"2025-01-23T05:13:40.630Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:13:40.631Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:13:40.634Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:14:06.388Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:14:08.178Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-00.ir5vs.mongodb.net","timestamp":"2025-01-23T05:14:08.786Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:14:08.787Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:14:08.791Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:14:22.480Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:14:24.388Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-00.ir5vs.mongodb.net","timestamp":"2025-01-23T05:14:26.370Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:14:26.387Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:14:26.391Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:14:31.309Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:14:33.034Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-01.ir5vs.mongodb.net","timestamp":"2025-01-23T05:14:33.514Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:14:33.516Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:14:33.519Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:15:27.312Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:15:29.135Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-01.ir5vs.mongodb.net","timestamp":"2025-01-23T05:15:32.110Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:15:32.114Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:15:32.118Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:23:14.171Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:23:19.072Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-02.ir5vs.mongodb.net","timestamp":"2025-01-23T05:23:19.750Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:23:19.752Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:23:19.755Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:23:59.187Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:24:01.090Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:24:05.364Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:24:07.145Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-02.ir5vs.mongodb.net","timestamp":"2025-01-23T05:24:08.659Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:24:08.663Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:24:08.667Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:25:18.326Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:25:20.155Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-01.ir5vs.mongodb.net","timestamp":"2025-01-23T05:25:21.337Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:25:21.338Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:25:21.341Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:37:19.462Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:37:21.318Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-02.ir5vs.mongodb.net","timestamp":"2025-01-23T05:37:21.930Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:37:21.931Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:37:21.934Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:39:46.762Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:39:48.658Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:40:19.875Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:40:21.620Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-01.ir5vs.mongodb.net","timestamp":"2025-01-23T05:40:22.037Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:40:22.038Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:40:22.041Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:43:13.771Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:43:15.515Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-01.ir5vs.mongodb.net","timestamp":"2025-01-23T05:43:16.036Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:43:16.037Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:43:16.040Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:43:38.584Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:43:40.345Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-00.ir5vs.mongodb.net","timestamp":"2025-01-23T05:43:40.764Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:43:40.766Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:43:40.770Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:43:49.202Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:43:51.029Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-02.ir5vs.mongodb.net","timestamp":"2025-01-23T05:43:51.507Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:43:51.508Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:43:51.512Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:44:07.329Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:44:09.098Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-01.ir5vs.mongodb.net","timestamp":"2025-01-23T05:44:09.656Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:44:09.657Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:44:09.661Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:46:40.651Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:46:42.411Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-01.ir5vs.mongodb.net","timestamp":"2025-01-23T05:46:42.908Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:46:42.909Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:46:42.912Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:46:51.217Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:46:53.373Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-00.ir5vs.mongodb.net","timestamp":"2025-01-23T05:46:53.949Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:46:53.950Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:46:53.953Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T05:46:59.989Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T05:47:01.776Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-02.ir5vs.mongodb.net","timestamp":"2025-01-23T05:47:02.165Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T05:47:02.167Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T05:47:02.171Z"}
+{"level":"warn","message":"MongoDB connection disconnected","timestamp":"2025-01-23T06:04:35.278Z"}
+{"level":"info","message":"Mongoose connected to MongoDB","timestamp":"2025-01-23T06:04:35.288Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T06:18:44.360Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T06:18:46.610Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-00.ir5vs.mongodb.net","timestamp":"2025-01-23T06:18:47.384Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T06:18:47.386Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T06:18:47.393Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T06:21:31.787Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T06:21:37.190Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-00.ir5vs.mongodb.net","timestamp":"2025-01-23T06:21:37.922Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T06:21:37.925Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T06:21:37.930Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T06:55:19.606Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T06:55:21.451Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-00.ir5vs.mongodb.net","timestamp":"2025-01-23T06:55:25.104Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T06:55:25.109Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T06:55:25.114Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T06:59:53.801Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T06:59:55.733Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-00.ir5vs.mongodb.net","timestamp":"2025-01-23T06:59:56.133Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T06:59:56.134Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T06:59:56.138Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T07:00:34.933Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T07:00:37.029Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-02.ir5vs.mongodb.net","timestamp":"2025-01-23T07:00:37.447Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T07:00:37.448Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T07:00:37.452Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T07:00:42.531Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T07:00:44.283Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-01.ir5vs.mongodb.net","timestamp":"2025-01-23T07:00:44.673Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T07:00:44.675Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T07:00:44.679Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-23T07:00:51.586Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-23T07:00:53.355Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-02.ir5vs.mongodb.net","timestamp":"2025-01-23T07:00:53.805Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-23T07:00:53.806Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-23T07:00:53.810Z"}
+{"level":"error","message":"Error: Invalid credentials\n    at loginService (file:///C:/Users/RishavKumarJha/Desktop/my-backend/journey/journey/user-service/src/services/authServices.js:38:11)\n    at async login (file:///C:/Users/RishavKumarJha/Desktop/my-backend/journey/journey/user-service/src/controllers/authController.js:54:24)","timestamp":"2025-01-23T07:03:58.177Z"}
+{"level":"info","message":"Token generated successfully.","timestamp":"2025-01-23T07:04:33.050Z"}

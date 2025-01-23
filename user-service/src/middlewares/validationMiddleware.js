@@ -83,9 +83,16 @@ export const validateAdminLogin = (req, res, next) => {
 };
 
 // 5. Reset Password validation
+// 5. Reset Password validation
 export const validateResetPassword = (req, res, next) => {
   const schema = Joi.object({
     email: Joi.string().email().required(),
+    otp: Joi.string().length(6).required(),
+    newPassword: Joi.string()
+      .min(8)
+      .max(30)
+      .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+      .required()
   });
 
   const { error } = schema.validate(req.body);
@@ -96,6 +103,7 @@ export const validateResetPassword = (req, res, next) => {
 
   next();
 };
+
 
 // 6. Social Login validation
 export const validateSocialLogin = (req, res, next) => {

@@ -4,14 +4,15 @@ import {
   adminSignUpService,
   adminLoginService,
   resetPasswordService,
-  verifyEmailService,
   socialLoginService,
   logoutService,
+  forgotPasswordService
 } from "../services/authServices.js";
 import { sendOTP } from "../services/otpServices.js";
 import OTP from "../database/models/Otp.js";
 import { checkLoginAttempts } from "../middlewares/loginAttemptMiddleware.js"; // Import the middleware
 import { error } from "../utils/errorLogger.js";
+import User from "../database/models/User.js";
 
 
 // Sign-up route (for new users)
@@ -116,11 +117,11 @@ export const adminLogin = [
 ];
 
 // Reset password (email sent to reset the password)
-export const resetPassword = async (req, res) => {
+export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    const response = await resetPasswordService({ email });
+    const response = await forgotPasswordService({ email });
 
     return res.status(200).json(response);
   } catch (err) {
@@ -131,21 +132,32 @@ export const resetPassword = async (req, res) => {
   }
 };
 
-// Email verification route (user verification)
-export const verifyEmail = async (req, res) => {
+export const resetPassword = async (req, res) => {
   try {
-    const { token } = req.params;
+    const { email, otp, newPassword } = req.body;
 
-    const response = await verifyEmailService({ token });
+    const response = await resetPasswordService({
+      email,
+      otp,
+      newPassword,
+    });
 
     return res.status(200).json(response);
-  } catch (err) {
-    error(err);
-    return res
-      .status(500)
-      .json({ message: "Server error during email verification." });
+  } catch (error) {
+    console.error("Error in reset password:", error);
+
+    if (error.message === "Invalid OTP") {
+      return res.status(400).json({ message: error.message });
+    }
+
+    if (error.message === "OTP expired") {
+      return res.status(400).json({ message: error.message });
+    }
+
+    return res.status(500).json({ message: "Error resetting password" });
   }
 };
+
 
 // Social media login (Google/Facebook)
 export const socialLogin = async (req, res) => {
@@ -183,8 +195,8 @@ export const sendOTPController = async (req, res) => {
   try {
     const response = await sendOTP(email);
     return res.status(200).json(response);
-  } catch (error) {
-    console.error('Error sending OTP:', error);
+  } catch (err) {
+    error('Error sending OTP:', error);
     return res.status(500).json({ message: 'Failed to send OTP' });
   }
 };
@@ -194,22 +206,38 @@ export const verifyOTPController = async (req, res) => {
   const { email, otp } = req.body;
 
   try {
-    // Find the OTP in the database
     const otpRecord = await OTP.findOne({ email, otp });
 
     if (!otpRecord) {
-      return res.status(400).json({ message: 'Invalid OTP' });
+      return res.status(400).json({ message: "Invalid OTP" });
     }
 
-    // Check if OTP is expired
     if (otpRecord.expiresAt < Date.now()) {
-      return res.status(400).json({ message: 'OTP expired' });
+      await OTP.deleteOne({ _id: otpRecord._id });
+      return res.status(400).json({ message: "OTP expired" });
     }
 
-    // OTP is valid
-    return res.status(200).json({ message: 'OTP verified successfully' });
-  } catch (error) {
-    console.error('Error verifying OTP:', error);
-    return res.status(500).json({ message: 'Server error during OTP verification' });
+    // Update user with { new: true } to get updated document
+    const updatedUser = await User.findOneAndUpdate(
+      { email },
+      { isVerified: true },
+      { new: true }
+    );
+
+    await OTP.deleteOne({ _id: otpRecord._id });
+
+    return res.status(200).json({
+      message: "OTP verified successfully",
+      user: {
+        email: updatedUser.email,
+        isVerified: updatedUser.isVerified,
+      },
+    });
+  } catch (err) {
+    error("Error verifying OTP:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error during OTP verification" });
   }
 };
+
