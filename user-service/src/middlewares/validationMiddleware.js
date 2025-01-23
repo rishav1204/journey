@@ -130,3 +130,31 @@ export const validateEmail = (req, res, next) => {
 
   next();
 };
+
+export const validatePreferences = (req, res, next) => {
+  const { preferences } = req.body;
+
+  if (!preferences || typeof preferences !== "object") {
+    return res.status(400).json({
+      success: false,
+      message: "Preferences object is required",
+    });
+  }
+
+  const requiredFields = [
+    "transportation",
+    "budget",
+    "accommodation",
+    "activityType",
+  ];
+  const missingFields = requiredFields.filter((field) => !preferences[field]);
+
+  if (missingFields.length > 0) {
+    return res.status(400).json({
+      success: false,
+      message: `Missing required fields: ${missingFields.join(", ")}`,
+    });
+  }
+
+  next();
+};

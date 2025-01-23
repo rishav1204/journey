@@ -2,8 +2,6 @@ import User from "../database/models/User.js";
 import OTP from "../database/models/Otp.js";
 import { generateToken } from "../utils/tokenUtils.js";
 import hashUtils from "../utils/hash.js";  // Import the default export as `hashUtils`
-import { sendEmail } from "../services/emailServices.js";
-import { generateOTP } from "../utils/otp.js";
 import { sendOTPPasswordReset } from "./otpServices.js";
 const { hashPassword, comparePassword } = hashUtils;  // Destructure the functions from the default export
 

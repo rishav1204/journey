@@ -1,6 +1,7 @@
 import {
   getUserProfileService,
   updateUserProfileService,
+  createPreferencesService,
   updatePreferencesService,
   uploadOrEditProfilePicService,
   deleteProfilePicService,
@@ -60,39 +61,54 @@ export const updatePreferences = async (req, res) => {
 // Upload or edit profile picture
 export const uploadOrEditProfilePic = async (req, res) => {
   try {
-    // Handle the image upload and call the service
-    const updatedUserProfile = await uploadOrEditProfilePicService(req.user._id, req.file);
-    return res.status(200).json(updatedUserProfile);
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Error while uploading or editing profile picture." });
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No file uploaded",
+      });
+    }
+
+    const result = await uploadOrEditProfilePicService(req.user._id, req.file.path);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error uploading profile picture",
+      error: error.message,
+    });
   }
 };
+
 
 // Delete profile picture
 export const deleteProfilePic = async (req, res) => {
   try {
-    const updatedUserProfile = await deleteProfilePicService(req.user._id);
-    return res.status(200).json(updatedUserProfile);
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Error while deleting profile picture." });
+    const result = await deleteProfilePicService(req.user._id);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error deleting profile picture",
+      error: error.message,
+    });
   }
 };
 
 // Update privacy settings (e.g., make profile public/private)
 export const updatePrivacySettings = async (req, res) => {
   try {
-    const updatedPrivacySettings = await updatePrivacySettingsService(
-      req.user._id,
-      req.body
-    );
-    return res.status(200).json(updatedPrivacySettings);
-  } catch (err) {
-    error(err); // Log the error using error logger
-    return res
-      .status(500)
-      .json({ message: "Error while updating privacy settings." });
+    const result = await updatePrivacySettingsService(req.user._id, {
+      isProfilePublic: req.body.isProfilePublic,
+      showEmail: req.body.showEmail,
+      showPhoneNumber: req.body.showPhoneNumber,
+    });
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error updating privacy settings",
+      error: error.message,
+    });
   }
 };
 
@@ -125,17 +141,23 @@ export const getFollowing = async (req, res) => {
 // Account deactivation (User only)
 export const deactivateAccount = async (req, res) => {
   try {
-    const result = await deactivateAccountService(req.user._id);
+    const result = await deactivateAccountService(
+      req.user._id,
+      req.body.reason,
+      req.body.password
+    );
     return res
       .status(200)
       .json({ message: "Account deactivated successfully." });
   } catch (err) {
-    error(err); // Log the error using error logger
-    return res
-      .status(500)
-      .json({ message: "Error while deactivating account." });
+    error(err);
+    return res.status(500).json({
+      message: "Error deactivating account",
+      error: err.message,
+    });
   }
 };
+
 
 // Account deletion (User only)
 export const deleteAccount = async (req, res) => {
@@ -145,5 +167,19 @@ export const deleteAccount = async (req, res) => {
   } catch (err) {
     error(err); // Log the error using error logger
     return res.status(500).json({ message: "Error while deleting account." });
+  }
+};
+
+export const createPreferences = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { travelStyle, preferences } = req.body;
+    const result = await createPreferencesService(userId, {
+      travelStyle,
+      preferences,
+    });
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
