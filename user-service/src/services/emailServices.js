@@ -1,11 +1,16 @@
+import dotenv from "dotenv";
 import nodemailer from "nodemailer";
+dotenv.config();
 
 // Create a reusable transporter object using SMTP transport
 const transporter = nodemailer.createTransport({
-  service: "gmail", // Example using Gmail
+  service: "gmail",
   auth: {
-    user: process.env.EMAIL_USER, // Your email address (e.g., 'your-email@gmail.com')
-    pass: process.env.EMAIL_PASSWORD, // Your email password or app-specific password
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD, // Use the App Password here, not your regular Gmail password
+  },
+  tls: {
+    rejectUnauthorized: false,
   },
 });
 
@@ -18,21 +23,21 @@ const transporter = nodemailer.createTransport({
  * @param {string} [html] - Optional HTML content for the email.
  * @returns {Promise<object>} - Success or error response.
  */
-export const sendEmail = async (to, subject, text, html = null) => {
+export const sendEmail = async (to, subject, text, html) => {
   try {
     const mailOptions = {
-      from: process.env.EMAIL_USER, // Sender address
-      to, // List of recipients
-      subject, // Subject line
-      text, // Plain text body
+      from: process.env.EMAIL_USER,
+      to,
+      subject,
+      text,
+      html,
     };
 
-    // Send email using the transporter
     await transporter.sendMail(mailOptions);
-
     return { message: "Email sent successfully" };
   } catch (error) {
     console.error("Error sending email:", error);
     throw new Error("Failed to send email");
   }
 };
+

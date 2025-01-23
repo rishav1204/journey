@@ -2,6 +2,7 @@ import User from "../database/models/User.js";
 import { generateToken } from "../utils/tokenUtils.js";
 import hashUtils from "../utils/hash.js";  // Import the default export as `hashUtils`
 import { sendEmail } from "../services/emailServices.js";
+import { generateOTP } from "../utils/otp.js";
 const { hashPassword, comparePassword } = hashUtils;  // Destructure the functions from the default export
 
 // Sign up a new user
@@ -80,19 +81,35 @@ export const adminLoginService = async ({ email, password }) => {
 
 // Reset password
 export const resetPasswordService = async ({ email }) => {
-  const user = await User.findOne({ email: email }); // Extract email from the object
+  const user = await User.findOne({ email });
   if (!user) {
     throw new Error("User not found");
   }
 
-  const resetToken = generateToken({ userId: user._id }, "1h");
+  // Generate OTP using utility function
+  const otp = generateOTP();
+
+  // Store OTP and its expiry
+  user.resetPasswordOTP = otp;
+  user.resetPasswordOTPExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  await user.save();
+
+  // Using generic sendEmail function
   await sendEmail(
     email,
-    "Password Reset",
-    `Your reset token is: ${resetToken}`
+    "Password Reset OTP",
+    `Your OTP for password reset is: ${otp}. This code will expire in 10 minutes.`,
+    `
+    <div style="text-align: center;">
+      <h1>Password Reset OTP</h1>
+      <h2 style="font-size: 24px; font-weight: bold;">${otp}</h2>
+      <p>Use this OTP to reset your password. It will expire in 10 minutes.</p>
+      <p>If you didn't request this, please ignore this email.</p>
+    </div>
+    `
   );
 
-  return { message: "Password reset email sent" };
+  return { message: "OTP sent to your email" };
 };
 
 
