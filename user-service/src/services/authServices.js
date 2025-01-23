@@ -23,8 +23,9 @@ export const signUpService = async (userData) => {
 };
 
 // Log in a user
-export const loginService = async ({ email, password }) => {
-  const user = await User.findOne({ email }).select("+password"); // Add .select('+password') to include the password field
+export const loginService = async ({ email, password, deviceInfo }) => {
+  const user = await User.findOne({ email }).select("+password");
+
   if (!user) {
     throw new Error("User not found");
   }
@@ -34,15 +35,35 @@ export const loginService = async ({ email, password }) => {
   }
 
   const isPasswordValid = await comparePassword(password, user.password);
-  if (!isPasswordValid) {
+
+  if (isPasswordValid) {
+    // Create device entry
+    const deviceEntry = {
+      deviceId: deviceInfo.deviceId || `${Date.now()}-${Math.random()}`,
+      deviceType: deviceInfo.deviceType || "Web",
+      lastUsed: new Date(),
+    };
+
+    // Update user with login info and new device
+    await User.findByIdAndUpdate(user._id, {
+      $inc: { loginAttempts: 1 },
+      $set: {
+        lastActive: new Date(),
+      },
+      $addToSet: { devices: deviceEntry }, // Uses $addToSet to avoid duplicates
+    });
+
+    const token = generateToken({ userId: user._id, role: user.role });
+    return { message: "Login successful", token };
+  } else {
+    await User.findByIdAndUpdate(user._id, {
+      $inc: { failedLoginAttempts: 1 },
+      $set: { lastFailedLogin: new Date() },
+    });
+
     throw new Error("Invalid credentials");
   }
-
-  const token = generateToken({ userId: user._id, role: user.role });
-  return { message: "Login successful", token };
 };
-
-
 
 // Admin Sign-Up
 export const adminSignUpService = async (userData) => {

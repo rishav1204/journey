@@ -51,7 +51,14 @@ export const login = [
   async (req, res) => {
     try {
       const { email, password } = req.body;
-      const response = await loginService({ email, password });
+
+      // Extract device information from request
+      const deviceInfo = {
+        deviceId: req.headers["device-id"] || `${Date.now()}-${Math.random()}`,
+        deviceType: req.headers["device-type"] || "Web",
+      };
+
+      const response = await loginService({ email, password, deviceInfo });
       return res.status(200).json(response);
     } catch (err) {
       error(err);

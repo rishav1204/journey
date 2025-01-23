@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema({
     enum: ["Active", "Deactivated", "Banned"],
     default: "Active",
   },
-  lastActive: Date,
+  lastActive: { type: Date, default: Date.now, select: true },
   twoFactorEnabled: { type: Boolean, default: false },
   twoFactorSecret: String, // Encrypted TOTP secret for 2FA
 
