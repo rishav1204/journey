@@ -21,3 +21,4 @@ const reelSchema = new mongoose.Schema(
 const Reel = mongoose.model("Reel", reelSchema);
 
 export default Reel;
+

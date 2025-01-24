@@ -12,4 +12,5 @@ router.get("/followers-list", authMiddleware, getFollowers);
 router.delete("/:userId", authMiddleware, removeFollower);
 router.get("/requests", authMiddleware, getFollowerRequests);
 
+
 export default router;

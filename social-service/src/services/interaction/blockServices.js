@@ -1,4 +1,4 @@
-import Block from "../../models/Block.js";
+import Block from "../../models/block.js";
 import User from "../../models/User.js";
 import Follow from "../../models/Follow.js";
 

@@ -25,6 +25,7 @@ export const blockUser = async (req, res) => {
   }
 };
 
+
 export const unblockUser = async (req, res) => {
   try {
     const { userId } = req.params;

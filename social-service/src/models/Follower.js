@@ -31,3 +31,4 @@ followerSchema.index({ userId: 1, followingUserId: 1 }, { unique: true });
 const Follower = mongoose.model("Follower", followerSchema);
 
 export default Follower;
+

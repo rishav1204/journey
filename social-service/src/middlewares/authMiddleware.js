@@ -19,6 +19,7 @@ export const authMiddleware = async (req, res, next) => {
     // Add user info to request
     req.user = decoded;
 
+    
     next();
   } catch (err) {
     error(`Authentication Error: ${err.message}`);

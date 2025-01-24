@@ -19,3 +19,4 @@ router.post("/accept/:userId", authMiddleware, acceptFollowRequest);
 router.post("/reject/:userId", authMiddleware, rejectFollowRequest);
 
 export default router;
+

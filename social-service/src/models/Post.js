@@ -1,5 +1,14 @@
 import mongoose from "mongoose";
 
+const mediaSchema = new mongoose.Schema({
+  url: { type: String, required: true },
+  publicId: { type: String, required: true },
+  type: { type: String, enum: ["image", "video"], required: true },
+  width: Number,
+  height: Number,
+  duration: Number, // For videos
+});
+
 const postSchema = new mongoose.Schema(
   {
     userId: {
@@ -12,11 +21,7 @@ const postSchema = new mongoose.Schema(
       required: true,
     },
     tags: String,
-    media: [
-      {
-        type: String, // Links to images, videos, etc.
-      },
-    ],
+    media: [mediaSchema],
     createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true }
@@ -25,3 +30,4 @@ const postSchema = new mongoose.Schema(
 const Post = mongoose.model("Post", postSchema);
 
 export default Post;
+

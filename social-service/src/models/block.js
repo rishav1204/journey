@@ -28,3 +28,4 @@ blockSchema.index({ userId: 1, blockedBy: 1 }, { unique: true });
 const Block = mongoose.model("Block", blockSchema);
 
 export default Block;
+

@@ -29,3 +29,4 @@ const shareSchema = new mongoose.Schema(
 const Share = mongoose.model("Share", shareSchema);
 
 export default Share;
+

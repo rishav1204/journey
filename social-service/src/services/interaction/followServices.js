@@ -52,6 +52,7 @@ export const followUserService = async (userId, followerId) => {
   }
 };
 
+
 export const unfollowUserService = async (userId, followerId) => {
   const session = await Follower.startSession();
   session.startTransaction();

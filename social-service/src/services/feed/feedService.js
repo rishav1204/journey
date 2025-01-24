@@ -20,6 +20,7 @@ export const getFeedPostsService = async (page, limit) => {
   };
 };
 
+
 export const getFeedReelsService = async (page, limit) => {
   const skip = (page - 1) * limit;
 

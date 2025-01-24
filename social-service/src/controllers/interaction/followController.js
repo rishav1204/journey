@@ -67,6 +67,7 @@ export const getFollowing = async (req, res) => {
   }
 };
 
+
 export const sendFollowRequest = async (req, res) => {
   try {
     const { userId } = req.params;

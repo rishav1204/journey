@@ -9,6 +9,7 @@ import {
   replyToComment,
   deleteReply,
 } from "../controllers/interaction/commentController.js";
+import { validateComment } from "../middlewares/validationMiddleware.js";
 
 const router = express.Router();
 
@@ -18,7 +19,7 @@ const router = express.Router();
 router.get("/:postId/comments", authMiddleware, getComments);
 
 // Create a new comment on a post
-router.post("/:postId/comments", authMiddleware, createComment);
+router.post("/:postId/comments", authMiddleware, validateComment, createComment);
 
 // Delete a comment
 router.delete("/:postId/comments/:commentId", authMiddleware, deleteComment);
@@ -33,10 +34,12 @@ router.delete(
   unlikeComment
 );
 
+
 // Reply to a comment
 router.post(
   "/:postId/comments/:commentId/reply",
   authMiddleware,
+  validateComment,
   replyToComment
 );
 

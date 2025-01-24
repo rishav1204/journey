@@ -58,3 +58,4 @@ reportSchema.index(
 const Report = mongoose.model("Report", reportSchema);
 
 export default Report;
+

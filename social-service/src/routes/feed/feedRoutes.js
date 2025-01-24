@@ -12,3 +12,4 @@ router.get("/posts", authMiddleware, validatePagination, getFeedPosts);
 router.get("/reels", authMiddleware, validatePagination, getFeedReels);
 
 export default router;
+

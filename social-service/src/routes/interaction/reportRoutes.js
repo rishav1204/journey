@@ -16,3 +16,4 @@ router.post("/reel/:reelId", authMiddleware, reportReel);
 router.get("/reports-list", authMiddleware, authorizeRole(["admin"]), getReports);
 
 export default router;
+

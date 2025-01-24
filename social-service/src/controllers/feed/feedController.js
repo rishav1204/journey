@@ -21,6 +21,7 @@ export const getFeedPosts = async (req, res) => {
   }
 };
 
+
 export const getFeedReels = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;

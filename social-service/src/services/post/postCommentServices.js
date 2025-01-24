@@ -37,6 +37,7 @@ export const createCommentService = async (
   return comment.populate("userId", "username profilePicture");
 };
 
+
 export const deleteCommentService = async (commentId, userId) => {
   const comment = await Comment.findById(commentId);
   if (!comment) {

@@ -60,3 +60,4 @@ export const getFollowerRequests = async (req, res) => {
     });
   }
 };
+

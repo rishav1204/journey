@@ -17,3 +17,26 @@ export const validatePagination = (req, res, next) => {
 
   next();
 };
+
+
+export const validateComment = (req, res, next) => {
+  const { content } = req.body;
+
+  if (!content || content.trim().length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: "Comment content is required",
+    });
+  }
+
+  if (content.length > 1000) {
+    return res.status(400).json({
+      success: false,
+      message: "Comment content exceeds maximum length",
+    });
+  }
+
+  next();
+};
+
+

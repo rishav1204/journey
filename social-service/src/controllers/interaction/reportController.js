@@ -30,6 +30,7 @@ export const reportUser = async (req, res) => {
       error: error.message,
     });
   }
+  
 };
 
 export const reportPost = async (req, res) => {
