@@ -109,10 +109,6 @@ const userSchema = new mongoose.Schema({
   reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
   ratings: [{ type: mongoose.Schema.Types.ObjectId, ref: "Rating" }],
 
-  // Social connections
-  followers: [{ type: String }],
-  following: [{ type: String }],
-
   // Notifications and Settings
   pushNotificationsEnabled: { type: Boolean, default: true },
   emailNotificationsEnabled: { type: Boolean, default: true },

@@ -249,3 +249,15 @@
 {"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:11.676Z"}
 {"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:12.150Z"}
 {"level":"error","message":"Discord log sent successfully:","timestamp":"2025-01-23T10:55:12.586Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-24T10:17:31.818Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-24T10:17:38.893Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-00.ir5vs.mongodb.net","timestamp":"2025-01-24T10:17:39.359Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-24T10:17:39.361Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-24T10:17:39.364Z"}
+{"level":"error","message":"User not found","timestamp":"2025-01-24T10:17:45.600Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-24T10:18:59.603Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-24T10:19:01.908Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-02.ir5vs.mongodb.net","timestamp":"2025-01-24T10:19:02.391Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-24T10:19:02.392Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-24T10:19:02.396Z"}
+{"level":"info","message":"Token generated successfully.","timestamp":"2025-01-24T10:19:05.955Z"}
