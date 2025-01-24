@@ -187,7 +187,7 @@ export const deactivateAccountService = async (userId, reason, password) => {
     userId,
     {
       $set: {
-        accountStatus: "deactivated",
+        accountStatus: "Deactivated",
         deactivationReason: reason,
         deactivatedAt: new Date(),
       },
