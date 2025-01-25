@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { body, validationResult } from "express-validator";
 
 // 1. Sign-up validation
 export const validateSignUp = (req, res, next) => {
@@ -111,20 +112,27 @@ export const validateResetPassword = (req, res, next) => {
 
 
 // 6. Social Login validation
-export const validateSocialLogin = (req, res, next) => {
-  const schema = Joi.object({
-    accessToken: Joi.string().required(), // Token from Google/Facebook
-  });
+export const validateSocialLogin = [
+  body("provider")
+    .notEmpty()
+    .withMessage("Provider is required")
+    .isIn(["google", "facebook"])
+    .withMessage("Invalid provider"),
 
-  const { error } = schema.validate(req.body);
+  body("token").notEmpty().withMessage("Token is required"),
 
-  if (error) {
-    error(error.message);
-    return res.status(400).json({ message: error.details[0].message });
-  }
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array(),
+      });
+    }
+    next();
+  },
+];
 
-  next();
-};
 
 export const validateEmail = (req, res, next) => {
   const { email } = req.body;

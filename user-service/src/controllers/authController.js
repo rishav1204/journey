@@ -165,22 +165,33 @@ export const resetPassword = async (req, res) => {
   }
 };
 
-
-// Social media login (Google/Facebook)
+// Social login 
 export const socialLogin = async (req, res) => {
   try {
     const { provider, token } = req.body;
 
-    const response = await socialLoginService({ provider, token });
+    // Validate provider type
+    const supportedProviders = ["google", "facebook"];
+    if (!supportedProviders.includes(provider)) {
+      return res.status(400).json({
+        message: `Unsupported provider. Supported providers are: ${supportedProviders.join(
+          ", "
+        )}`,
+      });
+    }
 
+    const response = await socialLoginService({ provider, token });
     return res.status(200).json(response);
   } catch (err) {
-    error(err);
-    return res
-      .status(500)
-      .json({ message: "Server error during social login." });
+    error("Social login error:", err);
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Server error during social login.",
+    });
   }
 };
+
+
 
 // Logout route (user logs out)
 export const logout = async (req, res) => {

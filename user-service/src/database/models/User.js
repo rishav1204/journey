@@ -10,6 +10,10 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
   phoneNumber: String,
   profilePicture: String,
+  cloudinaryPublicId: {
+    type: String,
+    default: null,
+  },
   bio: String,
   location: String,
   role: {
@@ -30,10 +34,52 @@ const userSchema = new mongoose.Schema({
     minlength: 6,
     select: false, // This ensures the password is not included in queries
   },
+  socialAuth: {
+    google: {
+      id: { type: String, sparse: true },
+      email: String,
+      picture: String,
+      accessToken: String,
+      refreshToken: String,
+      tokenExpiryDate: Date,
+    },
+    facebook: {
+      id: { type: String, sparse: true },
+      email: String,
+      picture: String,
+      accessToken: String,
+      refreshToken: String,
+      tokenExpiryDate: Date,
+    },
+  },
+
+  // Update the authProvider field to include more details
   authProvider: {
+    type: [
+      {
+        provider: {
+          type: String,
+          enum: ["email", "google", "facebook"],
+          required: true,
+        },
+        isConnected: {
+          type: Boolean,
+          default: true,
+        },
+        lastLogin: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+    default: [{ provider: "email" }],
+  },
+  socialVerification: {
+    google: { type: Boolean, default: false },
+    facebook: { type: Boolean, default: false },
+  },
+  avatar: {
     type: String,
-    enum: ["Email", "Google", "Facebook"],
-    default: "Email",
   },
   isVerified: { type: Boolean, default: false },
   loginAttempts: { type: Number, default: 0 },
@@ -66,10 +112,6 @@ const userSchema = new mongoose.Schema({
   // Reviews and Ratings
   reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
   ratings: [{ type: mongoose.Schema.Types.ObjectId, ref: "Rating" }],
-
-  // Social connections
-  followers: [{ type: String }],
-  following: [{ type: String }],
 
   // Notifications and Settings
   pushNotificationsEnabled: { type: Boolean, default: true },

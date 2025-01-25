@@ -1,11 +1,9 @@
 import fs from "fs";
-import { promisify } from "util";
 import User from "../database/models/User.js"; // Assuming User model for user data
 import { error } from "../utils/errorLogger.js";// Importing error logger
 import hashUtils from "../utils/hash.js";
 const { comparePassword } = hashUtils;  // Destructure the functions from the default export
-
-const unlinkAsync = promisify(fs.unlink);
+import { uploadProfilePicture, deleteFromCloudinary } from "../utils/cloudinary.js";
 
 // Get user profile
 export const getUserProfileService = async (userId) => {
@@ -64,51 +62,72 @@ export const updatePreferencesService = async (userId, preferencesData) => {
 };
 
 // Upload or edit profile picture
-export const uploadOrEditProfilePicService = async (userId, filePath) => {
-  const updatedUser = await User.findByIdAndUpdate(
-    userId,
-    { profilePicture: filePath },
-    { new: true }
-  );
+import { uploadProfilePicture } from "../utils/cloudinary.js";
+import fs from "fs/promises";
 
-  if (!updatedUser) {
-    throw new Error("User not found");
+export const uploadOrEditProfilePicService = async (userId, file) => {
+  try {
+    const result = await uploadProfilePicture(file);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        profilePicture: result.url,
+        cloudinaryPublicId: result.publicId,
+      },
+      { new: true }
+    );
+
+    // Clean up temp file
+    await fs.unlink(file.path);
+
+    return {
+      success: true,
+      data: {
+        profilePicture: updatedUser.profilePicture,
+      },
+    };
+  } catch (error) {
+    if (file.path) {
+      await fs.unlink(file.path).catch(() => {});
+    }
+    throw error;
   }
-
-  return {
-    success: true,
-    message: "Profile picture uploaded successfully",
-    data: {
-      profilePicture: updatedUser.profilePicture,
-    },
-  };
 };
 
 // Delete profile picture
 export const deleteProfilePicService = async (userId) => {
-  const user = await User.findById(userId);
+  try {
+    const user = await User.findById(userId);
 
-  if (user.profilePicture) {
-    try {
-      await unlinkAsync(user.profilePicture);
-    } catch (error) {
-      // File might not exist, continue with DB update
+    if (user.cloudinaryPublicId) {
+      // Delete from Cloudinary
+      await deleteFromCloudinary(user.cloudinaryPublicId);
     }
+
+    // Update user document
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          profilePicture: null,
+          cloudinaryPublicId: null,
+        },
+      },
+      { new: true }
+    );
+
+    return {
+      success: true,
+      message: "Profile picture deleted successfully",
+      data: {
+        profilePicture: updatedUser.profilePicture,
+      },
+    };
+  } catch (error) {
+    error(error);
+    throw error;
   }
-
-  const updatedUser = await User.findByIdAndUpdate(
-    userId,
-    { profilePicture: null },
-    { new: true }
-  );
-
-  return {
-    success: true,
-    message: "Profile picture deleted successfully",
-    data: {
-      profilePicture: updatedUser.profilePicture,
-    },
-  };
 };
 
 // Update privacy settings (make profile public/private)
@@ -187,7 +206,7 @@ export const deactivateAccountService = async (userId, reason, password) => {
     userId,
     {
       $set: {
-        accountStatus: "deactivated",
+        accountStatus: "Deactivated",
         deactivationReason: reason,
         deactivatedAt: new Date(),
       },

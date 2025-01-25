@@ -1,10 +1,14 @@
+import dotenv from "dotenv";
 import User from "../database/models/User.js";
 import OTP from "../database/models/Otp.js";
 import { generateToken } from "../utils/tokenUtils.js";
 import hashUtils from "../utils/hash.js";  // Import the default export as `hashUtils`
 import { sendOTPPasswordReset } from "./otpServices.js";
 import { error } from "../utils/errorLogger.js";
-const { hashPassword, comparePassword } = hashUtils;  // Destructure the functions from the default export
+import { OAuth2Client } from "google-auth-library";
+import crypto from "crypto";
+const { hashPassword, comparePassword } = hashUtils;// Destructure the functions from the default export
+dotenv.config();
 
 // Sign up a new user
 export const signUpService = async (userData) => {
@@ -125,25 +129,107 @@ export const resetPasswordService = async ({ email, otp, newPassword }) => {
   return { message: "Password reset successful" };
 };
 
+const googleClient = new OAuth2Client({
+  clientId: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+});
+
+const generateSecurePassword = () => {
+  return crypto.randomBytes(32).toString("hex");
+};
+
+export const verifyGoogleToken = async (token) => {
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: token,
+      audience: clientId,
+      maxExpiry: 3600, // 1 hour
+    });
+
+    const payload = ticket.getPayload();
+    console.log("Token payload:", payload); // Add this for debugging
+
+    return payload;
+  } catch (error) {
+    console.log("Token verification error:", error); // Add this for debugging
+    throw new Error("Invalid Google token");
+  }
+};
 
 // Social login
 export const socialLoginService = async ({ provider, token }) => {
-  const userData = verifySocialToken(provider, token); // Assume verifySocialToken validates and retrieves user info
+  const socialProfile = await verifyGoogleToken(token);
 
-  let user = await User.findOne({ email: userData.email });
+  let user = await User.findOne({ email: socialProfile.email });
+
   if (!user) {
     user = new User({
-      email: userData.email,
-      username: userData.username,
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      isVerified: true, // Assume social accounts are verified
+      email: socialProfile.email,
+      username: generateUsername(socialProfile.email),
+      firstName: socialProfile.email.split("@")[0],
+      lastName: "",
+      password: generateSecurePassword(),
+      isVerified: true,
+      accountStatus: "Active", // Using correct enum value
+      authProvider: [
+        {
+          provider: "google", // Using correct enum value
+          isConnected: true,
+          lastLogin: new Date(),
+        },
+      ],
+      role: "user",
+      socialAuth: {
+        google: {
+          id: socialProfile.sub,
+          email: socialProfile.email,
+        },
+      },
+      privacySettings: {
+        isProfilePublic: true,
+        showEmail: false,
+        showPhoneNumber: false,
+      },
     });
-    await user.save();
+  } else {
+    // Update existing user
+    user.lastActive = new Date();
+    user.authProvider = [
+      {
+        provider: "google",
+        isConnected: true,
+        lastLogin: new Date(),
+      },
+    ];
   }
 
-  const authToken = generateToken({ userId: user._id, role: user.role });
-  return { message: "Social login successful", token: authToken };
+  const savedUser = await user.save();
+
+  const authToken = generateToken({
+    userId: savedUser._id,
+    role: savedUser.role,
+    provider: "google",
+  });
+
+  return {
+    success: true,
+    message: "Google login successful",
+    token: authToken,
+    user: {
+      id: savedUser._id,
+      email: savedUser.email,
+      firstName: savedUser.firstName,
+      lastName: savedUser.lastName,
+      isVerified: savedUser.isVerified,
+    },
+  };
+};
+
+
+
+// Helper function to generate username from email
+const generateUsername = (email) => {
+  return email.split("@")[0] + Math.random().toString(36).substring(2, 5);
 };
 
 export const logoutService = async (user, token) => {
@@ -154,6 +240,10 @@ export const logoutService = async (user, token) => {
 
     // Invalidate the token by adding it to a blacklist
     await addToTokenBlacklist(token);
+    await User.findByIdAndUpdate(user._id, {
+      "socialAuth.google.accessToken": null,
+      "socialAuth.facebook.accessToken": null,
+    });
 
     return { message: "Logout successful" };
   } catch (err) {
