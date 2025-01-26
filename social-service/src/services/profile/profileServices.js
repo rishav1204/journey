@@ -3,7 +3,7 @@ import Post from "../../models/Post.js";
 import Reel from "../../models/Reel.js";
 import Save from "../../models/Save.js";
 import Follow from "../../models/Follow.js";
-import Block from "../../models/Block.js";
+import Block from "../../models/block.js";
 
 const checkPrivacyAccess = async (userId, viewerId) => {
   // Self access - always allowed
