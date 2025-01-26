@@ -12,6 +12,11 @@ export const sharePostService = async (
   message
 ) => {
   try {
+    // Validate required fields
+    if (!postId || !userId || !recipientId) {
+      throw new Error("Missing required fields");
+    }
+
     // Verify post exists
     const post = await Post.findById(postId).populate(
       "userId",
@@ -25,7 +30,7 @@ export const sharePostService = async (
     // Create share record
     const share = await Share.create({
       userId,
-      recipientId,
+      sharedTo: recipientId,
       contentId: postId,
       contentType: "post",
       message: message || "",

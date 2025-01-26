@@ -1,57 +1,69 @@
+import mongoose from "mongoose";
+import User from "../../models/User.js";
 import Follower from "../../models/Follower.js";
-import User from "../../../../user-service/src/database/models/User.js";
-import { checkBlockStatus } from "./blockServices.js";
+import { checkBlockStatus } from "../interaction/blockServices.js";
 
 export const followUserService = async (userId, followerId) => {
-  const session = await Follower.startSession();
-  session.startTransaction();
+  const session = await mongoose.startSession();
 
   try {
-    // Check if users exist
-    const [userToFollow, followerUser] = await Promise.all([
-      User.findById(userId),
-      User.findById(followerId),
-    ]);
+    // Start transaction
+    session.startTransaction();
+
+    // All operations must use the same session
+    const userToFollow = await User.findById(userId).session(session);
+    const followerUser = await User.findById(followerId).session(session);
 
     if (!userToFollow || !followerUser) {
+      await session.abortTransaction();
       throw new Error("User not found");
     }
 
-    // Check if blocked
+    // Use session for block check
     const isBlocked = await checkBlockStatus(userId, followerId);
     if (isBlocked) {
+      await session.abortTransaction();
       throw new Error("Cannot follow this user");
     }
 
-    // Check if already following
+    // Check existing follow with session
     const existingFollow = await Follower.findOne({
       userId: followerId,
       followingUserId: userId,
-    });
+    }).session(session);
 
     if (existingFollow) {
+      await session.abortTransaction();
       throw new Error("Already following this user");
     }
 
-    // Create follow relationship
-      const follow = await Follower.create([{
+    // Create follow with session
+    const follow = await Follower.create(
+      [
+        {
           userId: followerId,
           followingUserId: userId,
-          status: userToFollow.privacySettings.isProfilePublic ? 'accepted' : 'pending'
-      }],
+          status: userToFollow.privacySettings?.isProfilePublic
+            ? "accepted"
+            : "pending",
+        },
+      ],
       { session }
     );
 
+    // Commit if all operations succeed
     await session.commitTransaction();
     return follow[0];
   } catch (error) {
-    await session.abortTransaction();
+    // Only abort if transaction is active
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
     throw error;
   } finally {
-    session.endSession();
+    await session.endSession();
   }
 };
-
 
 export const unfollowUserService = async (userId, followerId) => {
   const session = await Follower.startSession();

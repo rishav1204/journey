@@ -36,7 +36,7 @@ import postShareRoutes from "./routes/post/postShareRoutes.js";
 app.use("/api/feed", feedRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/post/comments", postCommentRoutes)
-app.use("api/save/post", postSaveRoutes);
+app.use("/api/save/post", postSaveRoutes);
 app.use("/api/share/post", postShareRoutes);
 app.use("/api/follow", followRoutes);
 app.use("/api/follower", followerRoutes);
