@@ -271,3 +271,42 @@
 {"level":"info","message":"MongoDB Connected: journey-shard-00-00.ir5vs.mongodb.net","timestamp":"2025-01-24T12:25:56.352Z"}
 {"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-24T12:25:56.354Z"}
 {"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-24T12:25:56.357Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-25T05:20:16.278Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-25T05:20:19.817Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-00.ir5vs.mongodb.net","timestamp":"2025-01-25T05:20:26.338Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-25T05:20:26.342Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-25T05:20:26.347Z"}
+{"level":"info","message":"Token generated successfully.","timestamp":"2025-01-25T05:48:27.261Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-25T06:05:34.075Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-25T06:05:37.845Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-00.ir5vs.mongodb.net","timestamp":"2025-01-25T06:05:41.231Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-25T06:05:41.235Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-25T06:05:41.240Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-25T06:34:35.394Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-25T06:34:39.951Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-00.ir5vs.mongodb.net","timestamp":"2025-01-25T06:34:41.563Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-25T06:34:41.565Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-25T06:34:41.572Z"}
+{"level":"warn","message":"MongoDB connection disconnected","timestamp":"2025-01-25T07:13:24.106Z"}
+{"level":"info","message":"Mongoose connected to MongoDB","timestamp":"2025-01-25T07:13:24.133Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-25T07:27:57.605Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-25T07:28:07.293Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-00.ir5vs.mongodb.net","timestamp":"2025-01-25T07:28:08.641Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-25T07:28:08.643Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-25T07:28:08.646Z"}
+{"level":"warn","message":"MongoDB connection disconnected","timestamp":"2025-01-25T07:42:03.484Z"}
+{"level":"info","message":"Mongoose connected to MongoDB","timestamp":"2025-01-25T07:42:03.672Z"}
+{"level":"warn","message":"MongoDB connection disconnected","timestamp":"2025-01-25T15:02:41.940Z"}
+{"level":"info","message":"Mongoose connected to MongoDB","timestamp":"2025-01-25T15:02:42.022Z"}
+{"level":"warn","message":"MongoDB connection disconnected","timestamp":"2025-01-25T15:12:14.415Z"}
+{"level":"info","message":"Mongoose connected to MongoDB","timestamp":"2025-01-25T15:12:14.502Z"}
+{"level":"warn","message":"MongoDB connection disconnected","timestamp":"2025-01-25T15:27:55.367Z"}
+{"level":"info","message":"Mongoose connected to MongoDB","timestamp":"2025-01-25T15:27:55.396Z"}
+{"level":"warn","message":"MongoDB connection disconnected","timestamp":"2025-01-25T16:38:41.013Z"}
+{"level":"info","message":"Mongoose connected to MongoDB","timestamp":"2025-01-25T16:38:41.383Z"}
+{"level":"warn","message":"MongoDB connection disconnected","timestamp":"2025-01-25T16:38:44.573Z"}
+{"level":"info","message":"Mongoose connected to MongoDB","timestamp":"2025-01-25T16:39:06.275Z"}
+{"level":"warn","message":"MongoDB connection disconnected","timestamp":"2025-01-25T18:30:32.405Z"}
+{"level":"info","message":"Mongoose connected to MongoDB","timestamp":"2025-01-25T18:31:26.043Z"}
+{"level":"warn","message":"MongoDB connection disconnected","timestamp":"2025-01-26T08:47:02.232Z"}
+{"level":"info","message":"Mongoose connected to MongoDB","timestamp":"2025-01-26T08:47:02.243Z"}

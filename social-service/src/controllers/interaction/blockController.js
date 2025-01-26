@@ -2,7 +2,7 @@ import {
   blockUserService,
   unblockUserService,
   getBlockedUsersService,
-} from "../../services/interaction/blockService.js";
+} from "../../services/interaction/blockServices.js";
 
 export const blockUser = async (req, res) => {
   try {

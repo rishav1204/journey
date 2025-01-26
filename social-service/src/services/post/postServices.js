@@ -1,17 +1,31 @@
+import { promises as fs } from "fs";
+import mongoose from "mongoose";
 import Post from "../../models/Post.js";
+import Save from "../../models/Save.js";
+import Comment from "../../models/Comment.js";
+import User from "../../models/User.js";
 import {
   uploadPostMedia,
   deleteFromCloudinary,
 } from "../../utils/cloudinary.js";
-import fs from "fs/promises";
 
 export const createPostService = async (userId, postData) => {
   const { caption, location, tags, media } = postData;
   const uploadedMedia = [];
+  const session = await mongoose.startSession();
+  let hasCommitted = false;
 
   try {
-    // Upload each media file to Cloudinary
-    const mediaPromises = media.map(async (file) => {
+    // First verify user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    session.startTransaction();
+
+    // Upload media files
+    for (const file of media) {
       try {
         const result = await uploadPostMedia(file);
         uploadedMedia.push({
@@ -22,32 +36,41 @@ export const createPostService = async (userId, postData) => {
           height: result.height,
           duration: result.duration,
         });
-        // Clean up temp file
         await fs.unlink(file.path);
       } catch (error) {
         throw new Error(
           `Failed to upload ${file.originalname}: ${error.message}`
         );
       }
-    });
+    }
 
-    await Promise.all(mediaPromises);
+    const post = await Post.create(
+      [
+        {
+          userId,
+          caption,
+          location,
+          tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
+          media: uploadedMedia,
+        },
+      ],
+      { session }
+    );
 
-    const post = await Post.create({
-      userId,
-      caption,
-      location,
-      tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
-      media: uploadedMedia,
-    });
+    await session.commitTransaction();
+    hasCommitted = true;
 
-    return await post.populate("userId", "username profilePicture");
+    return await post[0].populate("userId", "username profilePicture");
   } catch (error) {
-    // Clean up any uploaded media if post creation fails
+    if (!hasCommitted) {
+      await session.abortTransaction();
+    }
     await Promise.all(
       uploadedMedia.map((m) => deleteFromCloudinary(m.publicId).catch(() => {}))
     );
     throw error;
+  } finally {
+    session.endSession();
   }
 };
 
@@ -94,4 +117,43 @@ export const unlikePostService = async (postId, userId) => {
 
   post.likes = post.likes.filter((id) => id.toString() !== userId);
   await post.save();
+};
+
+export const getPostDetailsService = async (postId, userId) => {
+  try {
+    // Find post and populate relevant fields
+    const post = await Post.findById(postId)
+      .populate("userId", "username profilePicture")
+      .populate("likes", "username profilePicture");
+
+    if (!post) {
+      throw new Error("Post not found");
+    }
+
+    // Check if user has saved this post
+    const isSaved = await Save.findOne({
+      userId,
+      contentId: postId,
+      contentType: "post",
+    });
+
+    // Check if user has liked this post
+    const isLiked = post.likes.some((like) => like._id.toString() === userId);
+
+    // Get comment count
+    const commentCount = await Comment.countDocuments({
+      contentId: postId,
+      contentType: "Post",
+    });
+
+    // Return post with additional information
+    return {
+      ...post.toObject(),
+      isLiked,
+      isSaved: !!isSaved,
+      commentCount,
+    };
+  } catch (error) {
+    throw new Error(`Failed to fetch post details: ${error.message}`);
+  }
 };

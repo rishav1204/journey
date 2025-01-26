@@ -1,6 +1,6 @@
 import Follower from "../../models/Follower.js";
 import User from "../../../../user-service/src/database/models/User.js";
-import { checkBlockStatus } from "./blockService.js";
+import { checkBlockStatus } from "./blockServices.js";
 
 export const followUserService = async (userId, followerId) => {
   const session = await Follower.startSession();

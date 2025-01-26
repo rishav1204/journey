@@ -1,19 +1,25 @@
+import { promises as fs } from "fs";
 import {
   createPostService,
   deletePostService,
   getPostDetailsService,
   likePostService,
   unlikePostService,
-  savePostService,
-  unsavePostService,
-  sharePostService,
-} from "../../services/post/postService.js";
+} from "../../services/post/postServices.js";
+import mongoose from "mongoose";
 
 export const createPost = async (req, res) => {
   try {
     const { caption, location, tags } = req.body;
-    const media = req.files; // Array of uploaded files
+    const media = req.files;
     const userId = req.user.id;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
 
     const post = await createPostService(userId, {
       caption,
@@ -28,6 +34,12 @@ export const createPost = async (req, res) => {
       data: post,
     });
   } catch (error) {
+    // Clean up uploaded files if there's an error
+    if (req.files) {
+      await Promise.all(
+        req.files.map((file) => fs.unlink(file.path).catch(() => {}))
+      );
+    }
     res.status(500).json({
       success: false,
       message: "Error creating post",
@@ -40,6 +52,14 @@ export const getPostDetails = async (req, res) => {
   try {
     const { postId } = req.params;
     const userId = req.user.id;
+
+    // Validate postId
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid postId format",
+      });
+    }
 
     const post = await getPostDetailsService(postId, userId);
 
@@ -117,62 +137,4 @@ export const unlikePost = async (req, res) => {
   }
 };
 
-export const savePost = async (req, res) => {
-  try {
-    const { postId } = req.params;
-    const userId = req.user.id;
 
-    await savePostService(postId, userId);
-
-    res.status(200).json({
-      success: true,
-      message: "Post saved successfully",
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error saving post",
-      error: error.message,
-    });
-  }
-};
-
-export const unsavePost = async (req, res) => {
-  try {
-    const { postId } = req.params;
-    const userId = req.user.id;
-
-    await unsavePostService(postId, userId);
-
-    res.status(200).json({
-      success: true,
-      message: "Post unsaved successfully",
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error unsaving post",
-      error: error.message,
-    });
-  }
-};
-
-export const sharePost = async (req, res) => {
-  try {
-    const { postId } = req.params;
-    const userId = req.user.id;
-
-    await sharePostService(postId, userId);
-
-    res.status(200).json({
-      success: true,
-      message: "Post shared successfully",
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error sharing post",
-      error: error.message,
-    });
-  }
-};

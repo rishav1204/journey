@@ -1,5 +1,5 @@
 import Follower from "../../models/Follower.js";
-import { checkBlockStatus } from "./blockService.js";
+import { checkBlockStatus } from "./blockServices.js";
 
 export const getFollowersService = async (userId) => {
   const followers = await Follower.find({
