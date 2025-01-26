@@ -10,6 +10,10 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
   phoneNumber: String,
   profilePicture: String,
+  cloudinaryPublicId: {
+    type: String,
+    default: null,
+  },
   bio: String,
   location: String,
   role: {
@@ -71,9 +75,9 @@ const userSchema = new mongoose.Schema({
     default: [{ provider: "email" }],
   },
   socialVerification: {
-  google: { type: Boolean, default: false },
-  facebook: { type: Boolean, default: false }
-},
+    google: { type: Boolean, default: false },
+    facebook: { type: Boolean, default: false },
+  },
   avatar: {
     type: String,
   },
@@ -160,5 +164,5 @@ const userSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model("User", userSchema);
-
+export { userSchema };
 export default User;

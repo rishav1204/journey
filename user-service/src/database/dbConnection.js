@@ -8,7 +8,9 @@ const connectDB = async () => {
     const conn = await connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      // Removed unsupported options
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 30000,
     });
 
     info(`MongoDB Connected: ${conn.connection.host}`);
