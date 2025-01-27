@@ -2,60 +2,34 @@ import mongoose from "mongoose";
 
 const reportSchema = new mongoose.Schema(
   {
-    reportedType: {
-      type: String,
-      enum: ["USER", "POST", "REEL"],
-      required: true,
-    },
-    reportedId: {
-      type: mongoose.Schema.Types.ObjectId,
-      refPath: "reportedType",
-      required: true,
-    },
     reportedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
+    contentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      refPath: "contentType",
+    },
+    contentType: {
+      type: String,
+      required: true,
+      enum: ["User", "Post", "Reel"], // Changed from uppercase to proper model names
+    },
     reason: {
       type: String,
       required: true,
     },
-    description: {
-      type: String,
-      required: true,
-    },
+    description: String,
     status: {
       type: String,
-      enum: ["PENDING", "REVIEWED", "RESOLVED", "REJECTED"],
-      default: "PENDING",
-    },
-    reviewedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-    reviewedAt: Date,
-    action: {
-      type: String,
-      enum: [
-        "NO_ACTION",
-        "WARNING",
-        "TEMPORARY_BAN",
-        "PERMANENT_BAN",
-        "CONTENT_REMOVED",
-      ],
+      enum: ["pending", "reviewed", "resolved", "rejected"],
+      default: "pending",
     },
   },
   { timestamps: true }
 );
 
-// Compound index to prevent duplicate reports
-reportSchema.index(
-  { reportedType: 1, reportedId: 1, reportedBy: 1 },
-  { unique: true }
-);
-
 const Report = mongoose.model("Report", reportSchema);
-
 export default Report;
-

@@ -1,5 +1,5 @@
 import Report from "../../models/Report.js";
-import User from "../../../../user-service/src/database/models/User.js";
+import User from "../../models/User.js";
 import Post from "../../models/Post.js";
 import Reel from "../../models/Reel.js";
 
@@ -121,16 +121,25 @@ export const reportReelService = async (
 };
 
 export const getReportsService = async (type, status) => {
-  const query = {};
+  try {
+    const query = {};
 
-  if (type) query.reportedType = type;
-  if (status) query.status = status;
+    // Fix: Change contentType to reportedType in query
+    if (type) {
+      query.reportedType = type.toUpperCase(); // Reports use uppercase type (USER, POST, REEL)
+    }
 
-  const reports = await Report.find(query)
-    .populate("reportedBy", "username profilePicture")
-    .populate("reportedId")
-    .sort({ createdAt: -1 });
+    if (status) {
+      query.status = status.toUpperCase(); // Status should also be uppercase per schema
+    }
 
-  return reports;
+    const reports = await Report.find(query)
+      .populate("reportedBy", "username email lastActive")
+      .lean();
+
+    return reports;
+  } catch (error) {
+    throw error;
+  }
 };
 

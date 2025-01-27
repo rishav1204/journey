@@ -14,14 +14,12 @@ export const authMiddleware = async (req, res, next) => {
 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Decoded token:", decoded); // Add debug log
 
     // Set the user object correctly
     req.user = {
       id: decoded.userId, // Make sure this matches the payload from login service
       role: decoded.role,
     };
-    console.log("req.user:", req.user); // Add debug log
 
     next();
   } catch (err) {

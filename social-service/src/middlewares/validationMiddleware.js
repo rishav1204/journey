@@ -39,4 +39,18 @@ export const validateComment = (req, res, next) => {
   next();
 };
 
+export const validateSearch = (req, res, next) => {
+  const { query, page = 1, limit = 10 } = req.query;
+
+  if (!query) {
+    return res.status(400).json({
+      success: false,
+      message: "Search query is required",
+    });
+  }
+
+  req.query.page = parseInt(page);
+  req.query.limit = parseInt(limit);
+  next();
+};
 
