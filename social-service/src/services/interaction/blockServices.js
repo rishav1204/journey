@@ -1,6 +1,6 @@
 import Block from "../../models/block.js";
-import User from "../../models/User.js";
-import Follow from "../../models/Follow.js";
+import User from "../../../../user-service/src/database/models/User.js";
+import Follower from "../../models/Follower.js";
 
 export const blockUserService = async (userId, blockedBy) => {
   const session = await Block.startSession();

@@ -6,7 +6,7 @@ import {
   unlikeCommentService,
   replyToCommentService,
   deleteReplyService,
-} from "../../services/interaction/commentService.js";
+} from "../../services/post/postCommentServices.js";
 
 export const getComments = async (req, res) => {
   try {

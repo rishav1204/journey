@@ -1,5 +1,5 @@
 import app from "./src/app.js";
-import connectDB from "../user-service/src/database/dbConnection.js";
+import connectDB from "./src/config/dbConnection.js";
 import { info, error } from "../user-service/src/utils/errorLogger.js";
 import dotenv from "dotenv";
 

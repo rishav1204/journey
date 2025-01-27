@@ -6,7 +6,7 @@ const mediaSchema = new mongoose.Schema({
   type: { type: String, enum: ["image", "video"], required: true },
   width: Number,
   height: Number,
-  duration: Number, // For videos
+  duration: Number,
 });
 
 const postSchema = new mongoose.Schema(
@@ -14,15 +14,25 @@ const postSchema = new mongoose.Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true, // User who created the post
+      required: true,
     },
-    content: {
+    caption: {
       type: String,
       required: true,
     },
-    tags: String,
+    location: String,
+    tags: [String],
     media: [mediaSchema],
-    createdAt: { type: Date, default: Date.now },
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    shares: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
@@ -30,4 +40,3 @@ const postSchema = new mongoose.Schema(
 const Post = mongoose.model("Post", postSchema);
 
 export default Post;
-

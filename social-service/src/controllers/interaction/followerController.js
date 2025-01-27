@@ -2,7 +2,7 @@ import {
   getFollowersService,
   removeFollowerService,
   getFollowerRequestsService,
-} from "../../services/interaction/followerService.js";
+} from "../../services/interaction/followerServices.js";
 
 export const getFollowers = async (req, res) => {
   try {

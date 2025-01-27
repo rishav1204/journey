@@ -1,5 +1,5 @@
 import express from "express";
-import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { authMiddleware } from "../../middlewares/authMiddleware.js";
 import {
   createComment,
   deleteComment,
@@ -8,8 +8,8 @@ import {
   unlikeComment,
   replyToComment,
   deleteReply,
-} from "../controllers/interaction/commentController.js";
-import { validateComment } from "../middlewares/validationMiddleware.js";
+} from "../../controllers/post/postCommentController.js";
+import { validateComment } from "../../middlewares/validationMiddleware.js";
 
 const router = express.Router();
 

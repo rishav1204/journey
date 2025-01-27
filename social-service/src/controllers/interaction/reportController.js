@@ -3,7 +3,7 @@ import {
   reportPostService,
   reportReelService,
   getReportsService,
-} from "../../services/interaction/reportService.js";
+} from "../../services/interaction/reportServices.js";
 
 export const reportUser = async (req, res) => {
   try {

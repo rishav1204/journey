@@ -1,9 +1,12 @@
-import fs from "fs";
+import { unlink } from "fs/promises";
 import User from "../database/models/User.js"; // Assuming User model for user data
-import { error } from "../utils/errorLogger.js";// Importing error logger
+import { error } from "../utils/errorLogger.js"; // Importing error logger
 import hashUtils from "../utils/hash.js";
-const { comparePassword } = hashUtils;  // Destructure the functions from the default export
-import { uploadProfilePicture, deleteFromCloudinary } from "../utils/cloudinary.js";
+const { comparePassword } = hashUtils; // Destructure the functions from the default export
+import {
+  uploadProfilePicture,
+  deleteFromCloudinary,
+} from "../utils/cloudinary.js";
 
 // Get user profile
 export const getUserProfileService = async (userId) => {
@@ -62,9 +65,6 @@ export const updatePreferencesService = async (userId, preferencesData) => {
 };
 
 // Upload or edit profile picture
-import { uploadProfilePicture } from "../utils/cloudinary.js";
-import fs from "fs/promises";
-
 export const uploadOrEditProfilePicService = async (userId, file) => {
   try {
     const result = await uploadProfilePicture(file);
@@ -146,7 +146,6 @@ export const updatePrivacySettingsService = async (userId, privacyData) => {
     },
   };
 };
-
 
 // Get followers list
 export const getFollowersService = async (userId) => {

@@ -5,7 +5,7 @@ import {
   sendFollowRequestService,
   acceptFollowRequestService,
   rejectFollowRequestService,
-} from "../../services/interaction/followService.js";
+} from "../../services/interaction/followServices.js";
 
 export const followUser = async (req, res) => {
   try {

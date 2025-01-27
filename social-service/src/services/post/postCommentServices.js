@@ -1,5 +1,5 @@
 import Comment from "../../models/Comment.js";
-import { checkBlockStatus } from "./blockService.js";
+import Post from "../../models/Post.js";
 
 export const getCommentsService = async (contentId, contentType) => {
   const comments = await Comment.find({

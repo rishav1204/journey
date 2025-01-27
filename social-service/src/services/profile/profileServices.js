@@ -6,12 +6,13 @@ import Follow from "../../models/Follow.js";
 import Block from "../../models/Block.js";
 
 const checkPrivacyAccess = async (userId, viewerId) => {
+  // Self access - always allowed
   if (userId === viewerId) return true;
 
   const user = await User.findById(userId);
   if (!user) throw new Error("User not found");
 
-  // Fix: Use privacySettings.isProfilePublic instead of isProfilePublic
+  // Use the correct field from User model
   if (user.privacySettings.isProfilePublic) return true;
 
   const isFollower = await Follow.findOne({
@@ -22,6 +23,7 @@ const checkPrivacyAccess = async (userId, viewerId) => {
 
   return !!isFollower;
 };
+
 export const getProfileService = async (userId, viewerId) => {
   // Check if user is blocked
   const isBlocked = await Block.findOne({
