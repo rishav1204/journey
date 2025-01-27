@@ -5,19 +5,27 @@ import {
   getReelDetailsService,
   likeReelService,
   unlikeReelService,
-} from "../../services/reel/reelServices.js";
+} from "../../services/reels/reelServices.js";
 import mongoose from "mongoose";
 
 export const createReel = async (req, res) => {
   try {
     const { description, tags } = req.body;
-    const video = req.file;
+    const video = req.file; // From upload.single('video')
     const userId = req.user.id;
 
     if (!userId) {
       return res.status(400).json({
         success: false,
         message: "User ID is required",
+      });
+    }
+
+    // Add this validation
+    if (!video) {
+      return res.status(400).json({
+        success: false,
+        message: "Video file is required",
       });
     }
 
@@ -33,7 +41,6 @@ export const createReel = async (req, res) => {
       data: reel,
     });
   } catch (error) {
-    // Clean up uploaded file if there's an error
     if (req.file) {
       await fs.unlink(req.file.path).catch(() => {});
     }

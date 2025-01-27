@@ -1,6 +1,6 @@
 import express from "express";
 import { authMiddleware } from "../../middlewares/authMiddleware.js";
-import { upload } from "../../middlewares/uploadMiddleware.js";
+import { uploadVideo } from "../../middlewares/uploadMiddleware.js";
 import {
   createReel,
   deleteReel,
@@ -15,7 +15,7 @@ const router = express.Router();
 router.post(
   "/create-reel",
   authMiddleware,
-  upload.single("video"), // Single video upload for reels
+  uploadVideo, // Single video upload for reels
   createReel
 );
 router.get("/:reelId/details", authMiddleware, getReelDetails);

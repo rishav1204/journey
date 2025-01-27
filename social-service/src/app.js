@@ -1,9 +1,7 @@
-import { promises as fs } from "fs";
 import { existsSync, mkdirSync } from "fs"; // Add regular fs import
 import path from "path";
 import express from "express";
 import connectDB from "./config/dbConnection.js";
-import mongoose from "mongoose";
 import "./models/User.js";
 import dotenv from "dotenv";
 dotenv.config();
@@ -32,6 +30,10 @@ import postRoutes from "./routes/post/postRoutes.js";
 import postSaveRoutes from "./routes/post/postSaveRoutes.js";
 import postShareRoutes from "./routes/post/postShareRoutes.js";
 import profileRoutes from "./routes/profile/profileRoutes.js";
+import reelRoutes from "./routes/reel/reelRoutes.js";
+import reelCommentRoutes from "./routes/reel/reelCommentRoutes.js";
+import reelSaveRoutes from "./routes/reel/reelSaveRoutes.js";
+import reelShareRoutes from "./routes/reel/reelShareRoutes.js";
 import searchRoutes from "./routes/search/searchRoutes.js";
 
 // API Routes
@@ -44,6 +46,10 @@ app.use("/api/follow", followRoutes);
 app.use("/api/follower", followerRoutes);
 app.use("/api/block", blockRoutes);
 app.use("/api/report", reportRoutes);
+app.use("/api/reel", reelRoutes);
+app.use("/api/reel", reelCommentRoutes);
+app.use("/api/save/reel", reelSaveRoutes);
+app.use("/api/share/reel", reelShareRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/search", searchRoutes);
 

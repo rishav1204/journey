@@ -1,4 +1,4 @@
-import { shareReelService } from "../../services/reel/reelShareServices.js";
+import { shareReelService } from "../../services/reels/reelShareServices.js";
 
 export const shareReel = async (req, res) => {
   try {

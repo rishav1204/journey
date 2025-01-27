@@ -2,6 +2,9 @@ import { promises as fs } from "fs";
 import mongoose from "mongoose";
 import Reel from "../../models/Reel.js";
 import User from "../../models/User.js";
+import Comment from "../../models/Comment.js";
+import Like from "../../models/Like.js";
+import Save from "../../models/Save.js";
 import {
   uploadReel,
   deleteFromCloudinary,
@@ -77,44 +80,137 @@ export const deleteReelService = async (reelId, userId) => {
 };
 
 export const getReelDetailsService = async (reelId, userId) => {
-  const reel = await Reel.findById(reelId)
-    .populate("userId", "username profilePicture")
-    .populate("likes", "username profilePicture");
+  try {
+    const reel = await Reel.findById(reelId).populate(
+      "userId",
+      "username profilePicture"
+    );
 
-  if (!reel) {
-    throw new Error("Reel not found");
+    if (!reel) {
+      throw new Error("Reel not found");
+    }
+
+    // Get user interactions
+    const [isLiked, isSaved] = await Promise.all([
+      Like.exists({
+        userId,
+        contentId: reelId,
+        contentType: "reel",
+      }),
+      Save.exists({
+        userId,
+        contentId: reelId,
+        contentType: "reel",
+      }),
+    ]);
+
+    // Get latest comments
+    const comments = await Comment.find({
+      contentId: reelId,
+      contentType: "reel",
+    })
+      .populate("userId", "username profilePicture")
+      .sort({ createdAt: -1 })
+      .limit(3);
+
+    return {
+      ...reel.toObject(),
+      isLiked: !!isLiked,
+      isSaved: !!isSaved,
+      recentComments: comments,
+    };
+  } catch (error) {
+    throw new Error(`Failed to fetch reel details: ${error.message}`);
   }
-
-  return reel;
 };
 
 export const likeReelService = async (reelId, userId) => {
-  const reel = await Reel.findById(reelId);
-  if (!reel) {
-    throw new Error("Reel not found");
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    // Check if reel exists
+    const reel = await Reel.findById(reelId).session(session);
+    if (!reel) {
+      throw new Error("Reel not found");
+    }
+
+    // Check if already liked
+    const existingLike = await Like.findOne({
+      contentId: reelId,
+      userId,
+      contentType: "reel",
+    }).session(session);
+
+    if (existingLike) {
+      throw new Error("Reel already liked");
+    }
+
+    // Create like document
+    await Like.create(
+      [
+        {
+          contentId: reelId,
+          userId,
+          contentType: "reel",
+        },
+      ],
+      { session }
+    );
+
+    // Update reel like count
+    await Reel.findByIdAndUpdate(reelId, {
+      $inc: { likesCount: 1 },
+    }).session(session);
+
+    await session.commitTransaction();
+
+    // Return updated reel with populated fields
+    return await Reel.findById(reelId).populate(
+      "userId",
+      "username profilePicture"
+    );
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
-
-  if (reel.likes && reel.likes.includes(userId)) {
-    throw new Error("Reel already liked");
-  }
-
-  reel.likes = reel.likes || [];
-  reel.likes.push(userId);
-  await reel.save();
-
-  return await reel.populate("userId", "username profilePicture");
 };
 
+
 export const unlikeReelService = async (reelId, userId) => {
-  const reel = await Reel.findById(reelId);
-  if (!reel) {
-    throw new Error("Reel not found");
-  }
+  try {
+    const like = await Like.findOne({
+      contentId: reelId,
+      userId,
+      contentType: "reel",
+    });
 
-  if (!reel.likes || !reel.likes.includes(userId)) {
-    throw new Error("Reel not liked yet");
-  }
+    if (!like) {
+      throw new Error("Reel not liked yet");
+    }
 
-  reel.likes = reel.likes.filter((id) => id.toString() !== userId.toString());
-  await reel.save();
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      // Remove like document
+      await Like.findByIdAndDelete(like._id).session(session);
+
+      // Decrease like count in reel
+      await Reel.findByIdAndUpdate(reelId, {
+        $inc: { likesCount: -1 },
+      }).session(session);
+
+      await session.commitTransaction();
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  } catch (error) {
+    throw new Error(`Unlike failed: ${error.message}`);
+  }
 };

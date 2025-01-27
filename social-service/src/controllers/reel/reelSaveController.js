@@ -1,7 +1,7 @@
 import {
   saveReelService,
   unsaveReelService,
-} from "../../services/reel/reelSaveServices.js";
+} from "../../services/reels/reelSaveServices.js";
 
 export const saveReel = async (req, res) => {
   try {
