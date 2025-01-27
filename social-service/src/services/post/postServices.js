@@ -16,13 +16,21 @@ export const createPostService = async (userId, postData) => {
   let hasCommitted = false;
 
   try {
-    // First verify user exists
     const user = await User.findById(userId);
     if (!user) {
       throw new Error("User not found");
     }
 
     session.startTransaction();
+
+    // Process tags: Split by spaces and ensure each tag starts with #
+    const processedTags = tags
+      ? tags
+          .split(/[\s,]+/) // Split by spaces or commas
+          .map((tag) => tag.trim())
+          .filter((tag) => tag.length > 0)
+          .map((tag) => (tag.startsWith("#") ? tag : `#${tag}`))
+      : [];
 
     // Upload media files
     for (const file of media) {
@@ -38,22 +46,18 @@ export const createPostService = async (userId, postData) => {
         });
         await fs.unlink(file.path);
       } catch (error) {
-        throw new Error(
-          `Failed to upload ${file.originalname}: ${error.message}`
-        );
+        throw new Error(`Failed to upload ${file.originalname}: ${error.message}`);
       }
     }
 
     const post = await Post.create(
-      [
-        {
-          userId,
-          caption,
-          location,
-          tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
-          media: uploadedMedia,
-        },
-      ],
+      [{
+        userId,
+        caption,
+        location,
+        tags: processedTags, // Store tags as array
+        media: uploadedMedia,
+      }],
       { session }
     );
 

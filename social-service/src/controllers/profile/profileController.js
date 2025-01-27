@@ -82,7 +82,7 @@ export const getUserSavedPosts = async (req, res) => {
       });
     }
 
-    const savedPosts = await getSavedPostsService(userId, page, limit);
+    const savedPosts = await getSavedPostsService(userId, page, limit, viewerId);
 
     res.status(200).json({
       success: true,
@@ -111,7 +111,7 @@ export const getUserSavedReels = async (req, res) => {
       });
     }
 
-    const savedReels = await getSavedReelsService(userId, page, limit);
+    const savedReels = await getSavedReelsService(userId, page, limit, viewerId);
 
     res.status(200).json({
       success: true,

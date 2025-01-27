@@ -31,6 +31,8 @@ import postCommentRoutes from "./routes/post/postCommentRoutes.js";
 import postRoutes from "./routes/post/postRoutes.js";
 import postSaveRoutes from "./routes/post/postSaveRoutes.js";
 import postShareRoutes from "./routes/post/postShareRoutes.js";
+import profileRoutes from "./routes/profile/profileRoutes.js";
+import searchRoutes from "./routes/search/searchRoutes.js";
 
 // API Routes
 app.use("/api/feed", feedRoutes);
@@ -42,6 +44,8 @@ app.use("/api/follow", followRoutes);
 app.use("/api/follower", followerRoutes);
 app.use("/api/block", blockRoutes);
 app.use("/api/report", reportRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/search", searchRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

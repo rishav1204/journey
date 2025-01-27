@@ -1,8 +1,8 @@
-import User from "../../../../user-service/src/database/models/User.js";
+import User from "../../models/User.js";
 import Post from "../../models/Post.js";
 import Reel from "../../models/Reel.js";
 import Save from "../../models/Save.js";
-import Follow from "../../models/Follow.js";
+import Follow from "../../models/Follower.js";
 import Block from "../../models/block.js";
 
 const checkPrivacyAccess = async (userId, viewerId) => {
@@ -111,7 +111,7 @@ export const getReelsService = async (userId, page, limit, viewerId) => {
 };
 
 export const getSavedPostsService = async (userId, page, limit, viewerId) => {
-  if (userId !== viewerId) {
+  if (userId.toString() !== viewerId.toString()) {
     throw new Error("Cannot view other users' saved posts");
   }
 
@@ -141,8 +141,8 @@ export const getSavedPostsService = async (userId, page, limit, viewerId) => {
 };
 
 export const getSavedReelsService = async (userId, page, limit, viewerId) => {
-  if (userId !== viewerId) {
-    throw new Error("Cannot view other users' saved reels");
+  if (userId.toString() !== viewerId.toString()) {
+    throw new Error("Cannot view other user's saved reels");
   }
 
   const skip = (parseInt(page) - 1) * parseInt(limit);
