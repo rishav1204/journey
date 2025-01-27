@@ -1,41 +1,41 @@
+import mongoose from "mongoose";
 import Block from "../../models/block.js";
-import User from "../../../../user-service/src/database/models/User.js";
+import User from "../../models/User.js";
 import Follower from "../../models/Follower.js";
 
 export const blockUserService = async (userId, blockedBy) => {
-  const session = await Block.startSession();
-  session.startTransaction();
+  const session = await mongoose.startSession();
 
   try {
-    // Check if users exist
-    const [userToBlock, blockingUser] = await Promise.all([
-      User.findById(userId),
-      User.findById(blockedBy),
-    ]);
+    // Start transaction
+    session.startTransaction();
+
+    // All operations with same session
+    const userToBlock = await User.findById(userId).session(session);
+    const blockingUser = await User.findById(blockedBy).session(session);
 
     if (!userToBlock || !blockingUser) {
       throw new Error("User not found");
     }
 
-    // Check if already blocked
-    const existingBlock = await Block.findOne({ userId, blockedBy });
+    const existingBlock = await Block.findOne({
+      userId,
+      blockedBy,
+    }).session(session);
+
     if (existingBlock) {
       throw new Error("User is already blocked");
     }
 
-    // Remove from followers and following
-    await Promise.all([
-      // Remove userB from userA's following
-      Follow.findOneAndDelete({ follower: blockedBy, following: userId }),
-      // Remove userA from userB's following
-      Follow.findOneAndDelete({ follower: userId, following: blockedBy }),
-      // Remove userB from userA's followers
-      Follow.findOneAndDelete({ follower: userId, following: blockedBy }),
-      // Remove userA from userB's followers
-      Follow.findOneAndDelete({ follower: blockedBy, following: userId }),
-    ]);
+    // Single operation for follow removal
+    await Follower.deleteMany({
+      $or: [
+        { userId: blockedBy, followingUserId: userId },
+        { userId: userId, followingUserId: blockedBy },
+      ],
+    }).session(session);
 
-    // Create new block
+    // Create block with same session
     const block = await Block.create(
       [
         {
@@ -47,16 +47,19 @@ export const blockUserService = async (userId, blockedBy) => {
       { session }
     );
 
+    // Commit the transaction
     await session.commitTransaction();
     return block[0];
   } catch (error) {
-    await session.abortTransaction();
+    // Only abort if in transaction
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
     throw error;
   } finally {
-    session.endSession();
+    await session.endSession();
   }
 };
-
 
 export const unblockUserService = async (userId, unblockedBy) => {
   const session = await Block.startSession();
@@ -90,7 +93,6 @@ export const unblockUserService = async (userId, unblockedBy) => {
     session.endSession();
   }
 };
-
 
 export const getBlockedUsersService = async (userId) => {
   const blockedUsers = await Block.find({ blockedBy: userId })

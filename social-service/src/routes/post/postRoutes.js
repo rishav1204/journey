@@ -1,6 +1,6 @@
 import express from "express";
 import { authMiddleware } from "../../middlewares/authMiddleware.js";
-import { upload } from "../../middlewares/uploadMiddleware.js";
+import { uploadImages } from "../../middlewares/uploadMiddleware.js";
 import {
   createPost,
   deletePost,
@@ -13,12 +13,7 @@ const router = express.Router();
 
 
 // Post CRUD operations
-router.post(
-  "/create-post",
-  authMiddleware,
-  upload.array("media", 10),
-  createPost
-);
+router.post("/create-post", authMiddleware, uploadImages, createPost);
 router.get("/:postId/details", authMiddleware, getPostDetails);
 router.delete("/:postId", authMiddleware, deletePost);
 

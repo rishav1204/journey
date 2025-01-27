@@ -1,60 +1,60 @@
-import Post from "../../models/Post.js";
+import Reel from "../../models/Reel.js";
 import Share from "../../models/Share.js";
 import axios from "axios";
 
 const CHAT_SERVICE_URL =
   process.env.CHAT_SERVICE_URL || "http://localhost:5002";
 
-export const sharePostService = async (
-  postId,
+export const shareReelService = async (
+  reelId,
   userId,
   recipientId,
   message
 ) => {
   try {
     // Validate required fields
-    if (!postId || !userId || !recipientId) {
+    if (!reelId || !userId || !recipientId) {
       throw new Error("Missing required fields");
     }
 
-    // Verify post exists
-    const post = await Post.findById(postId).populate(
+    // Verify reel exists
+    const reel = await Reel.findById(reelId).populate(
       "userId",
       "username profilePicture"
     );
 
-    if (!post) {
-      throw new Error("Post not found");
+    if (!reel) {
+      throw new Error("Reel not found");
     }
 
     // Create share record
     const share = await Share.create({
       userId,
       sharedTo: recipientId,
-      contentId: postId,
-      contentType: "post",
+      contentId: reelId,
+      contentType: "reel",
       message: message || "",
     });
 
     // Increment share count
-    post.shares += 1;
-    await post.save();
+    reel.shares = (reel.shares || 0) + 1;
+    await reel.save();
 
     // Prepare share content
     const shareContent = {
       senderId: userId,
       recipientId,
-      messageType: "post_share",
+      messageType: "reel_share",
       shareId: share._id,
       content: {
-        postId: post._id,
+        reelId: reel._id,
         message: message || "",
         preview: {
-          type: post.media[0]?.type || "text",
-          url: post.media[0]?.url || "",
-          caption: post.caption,
-          author: post.userId.username,
-          authorPicture: post.userId.profilePicture,
+          type: "video",
+          url: reel.videoUrl,
+          caption: reel.description,
+          author: reel.userId.username,
+          authorPicture: reel.userId.profilePicture,
         },
       },
     };
@@ -74,8 +74,8 @@ export const sharePostService = async (
     if (!response.data.success) {
       // Rollback share creation if chat service fails
       await share.deleteOne();
-      await Post.findByIdAndUpdate(postId, { $inc: { shares: -1 } });
-      throw new Error("Failed to share post in chat");
+      await Reel.findByIdAndUpdate(reelId, { $inc: { shares: -1 } });
+      throw new Error("Failed to share reel in chat");
     }
 
     // Update share with chat message ID
@@ -84,7 +84,7 @@ export const sharePostService = async (
 
     return {
       shareId: share._id,
-      postId: post._id,
+      reelId: reel._id,
       sharedWith: recipientId,
       messageId: response.data.messageId,
     };

@@ -9,17 +9,21 @@ const shareSchema = new mongoose.Schema(
     },
     contentId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true, // Can be a reference to Post or Reel
+      required: true,
     },
     contentType: {
       type: String,
-      enum: ["post", "reel"], // Type of content shared
+      enum: ["post", "reel"],
       required: true,
     },
     sharedTo: {
-      type: String,
-      enum: ["chat", "feed", "profile", "external"], // Where the content was shared
+      type: mongoose.Schema.Types.ObjectId, // Changed to ObjectId for user reference
+      ref: "User",
       required: true,
+    },
+    message: {
+      type: String,
+      default: "",
     },
     sharedAt: { type: Date, default: Date.now },
   },
@@ -29,4 +33,3 @@ const shareSchema = new mongoose.Schema(
 const Share = mongoose.model("Share", shareSchema);
 
 export default Share;
-
