@@ -3,15 +3,28 @@
   "version": "1.0.0",
   "description": "This is the backend code for chat-service where features like sending messages receiving messages and more will be there.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
   },
   "author": "Rishav kumar",
   "license": "ISC",
   "dependencies": {
+    "cloudinary": "^2.5.1",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "discord.js": "^14.17.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "fs": "^0.0.1-security",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
-    "socket.io": "^4.8.1"
+    "nodemon": "^3.1.9",
+    "socket.io": "^4.8.1",
+    "useragent": "^2.3.0",
+    "util": "^0.12.5",
+    "winston": "^3.17.0"
   }
 }
