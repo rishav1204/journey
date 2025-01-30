@@ -219,7 +219,10 @@ const messageSchema = new mongoose.Schema(
         background: String
       },
       nicknames: {
-        [userId: string]: String // Store nicknames for participants
+        nicknames: {
+          type: Map,
+          of: String // Store nicknames for participants
+        }
       },
       autoReplyInfo: {
         isAutoReply: Boolean,
@@ -253,7 +256,7 @@ messageSchema.index({ channelId: 1, createdAt: -1 });
 // Add new privacy-related indexes
 messageSchema.index({ privacyLevel: 1 });
 messageSchema.index({ isEncrypted: 1 });
-messageSchema.index({ archiveStatus.isArchived: 1 });
+messageSchema.index({ "archiveStatus.isArchived": 1 });
 messageSchema.index({ visibleTo: 1 });
 messageSchema.index({ hideFrom: 1 });
 

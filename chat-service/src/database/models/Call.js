@@ -174,7 +174,7 @@ const callSchema = new mongoose.Schema(
         enabled: Boolean,
         algorithm: String
       }
-    }
+    },
     metadata: {
       title: String,
       description: String,
