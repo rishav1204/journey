@@ -4,19 +4,19 @@ import { authMiddleware } from "../middlewares/authMiddleware.js";
 const router = Router();
 
 // Update chat theme/colors
-router.patch("/theme", authMiddleware, updateTheme);
+router.patch("/update-theme", authMiddleware, updateTheme);
 
 // Set custom nickname for users
-router.patch("/nickname", authMiddleware, updateNickname);
+router.patch("/update-nickname", authMiddleware, updateNickname);
 
 // Update user bio/about
-router.patch("/bio", authMiddleware, updateBio);
+router.patch("/update-bio", authMiddleware, updateBio);
 
 // Update user profile picture
-router.patch("/profile-picture", authMiddleware, updateProfilePicture);
+router.patch("/update-profile-picture", authMiddleware, updateProfilePicture);
 
 // Configure automatic replies
-router.patch("/auto-reply", authMiddleware, setAutoReply);
+router.patch("/update-auto-reply", authMiddleware, setAutoReply);
 
 // Enable/disable notifications
 router.patch("/notifications/toggle", authMiddleware, toggleNotifications);

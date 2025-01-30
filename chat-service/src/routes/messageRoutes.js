@@ -50,7 +50,7 @@ router.delete("/conversations/:userId", authMiddleware, deleteConversation);
 
 // Message request system for non-followers
 router.post("/requests/send", authMiddleware, sendMessageRequest);
-router.get("/requests", authMiddleware, getMessageRequests);
+router.get("/message-requests", authMiddleware, getMessageRequests);
 router.patch(
   "/requests/:requestId/accept",
   authMiddleware,
@@ -63,8 +63,8 @@ router.patch(
 );
 
 // Schedule messages for future delivery
-router.post("/schedule", authMiddleware, scheduleMessage);
-router.get("/scheduled", authMiddleware, getScheduledMessages);
+router.post("/schedule-message", authMiddleware, scheduleMessage);
+router.get("/get-scheduled-messages", authMiddleware, getScheduledMessages);
 router.patch("/scheduled/:messageId", authMiddleware, updateScheduledMessage);
 router.delete("/scheduled/:messageId", authMiddleware, cancelScheduledMessage);
 

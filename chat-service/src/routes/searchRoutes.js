@@ -4,29 +4,29 @@ import { authMiddleware } from "../middlewares/authMiddleware.js";
 const router = Router();
 
 // Search through message history
-router.get("/messages", authMiddleware, searchMessages);
+router.get("/search-messages", authMiddleware, searchMessages);
 
 // Search shared media files
-router.get("/media", authMiddleware, searchMedia);
+router.get("/search-media", authMiddleware, searchMedia);
 
 // Search messages in a specific chat
-router.get("/chat", authMiddleware, searchChat);
+router.get("/search-chat", authMiddleware, searchChat);
 
 // Search messages in a specific group
-router.get("/group", authMiddleware, searchGroup);
+router.get("/search-group", authMiddleware, searchGroup);
 
 // Search messages in a specific channel
-router.get("/channel", authMiddleware, searchChannel);
+router.get("/search-channel", authMiddleware, searchChannel);
 
 // Search users in contact list
-router.get("/users", authMiddleware, searchUsers);
+router.get("/seach-users", authMiddleware, searchUsers);
 
 // Track and retrieve search history
-router.get("/history/recent", authMiddleware, getRecentSearches);
-router.get("/history/popular", authMiddleware, getPopularSearches);
-router.delete("/history/:searchId", authMiddleware, deleteSearchHistory);
+router.get("/search-history/recent", authMiddleware, getRecentSearches);
+router.get("/search-history/popular", authMiddleware, getPopularSearches);
+router.delete("/search-history/:searchId", authMiddleware, deleteSearchHistory);
 
 // Filter messages (unread/starred/media)
-router.get("/filter", authMiddleware, filterMessages);
+router.get("/filter-message", authMiddleware, filterMessages);
 
 export default router;

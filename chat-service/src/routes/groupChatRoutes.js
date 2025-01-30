@@ -4,7 +4,7 @@ import { authMiddleware } from "../middlewares/authMiddleware.js";
 const router = Router();
 
 // Create new group chat
-router.post("/create", authMiddleware, createGroup);
+router.post("/create-group", authMiddleware, createGroup);
 
 // Update group settings/info
 router.patch("/:groupId", authMiddleware, updateGroup);

@@ -4,7 +4,7 @@ import { authMiddleware } from "../middlewares/authMiddleware.js";
 const router = Router();
 
 // Create one-way broadcast channel
-router.post("/create", authMiddleware, createChannel);
+router.post("/create-channel", authMiddleware, createChannel);
 
 // Get channel details
 router.get("/:channelId", authMiddleware, getChannel);
@@ -16,7 +16,7 @@ router.put("/:channelId", authMiddleware, updateChannel);
 router.delete("/:channelId", authMiddleware, deleteChannel);
 
 // Get available channels
-router.get("/list", authMiddleware, listChannels);
+router.get("/list-channels", authMiddleware, listChannels);
 
 // Get channel messages
 router.get("/:channelId/messages", authMiddleware, getChannelMessages);
