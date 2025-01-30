@@ -21,8 +21,10 @@ router.get("/channel", authMiddleware, searchChannel);
 // Search users in contact list
 router.get("/users", authMiddleware, searchUsers);
 
-// Get all starred messages
-router.get("/starred", authMiddleware, getStarredMessages);
+// Track and retrieve search history
+router.get("/history/recent", authMiddleware, getRecentSearches);
+router.get("/history/popular", authMiddleware, getPopularSearches);
+router.delete("/history/:searchId", authMiddleware, deleteSearchHistory);
 
 // Filter messages (unread/starred/media)
 router.get("/filter", authMiddleware, filterMessages);

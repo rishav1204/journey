@@ -38,4 +38,23 @@ export class SchedulingError extends CallError {
   }
 }
 
+export class AuthorizationError extends AppError {
+  constructor(message) {
+    super(message, 403);
+  }
+}
+
+export class NotFoundError extends AppError {
+  constructor(message) {
+    super(message, 404);
+  }
+}
+
+export class AppError extends Error {
+  constructor(message, statusCode) {
+    super(message);
+    this.statusCode = statusCode;
+    this.status = `${statusCode}`.startsWith("4") ? "fail" : "error";
+  }
+}
 

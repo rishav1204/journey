@@ -253,6 +253,9 @@ messageSchema.index({ conversationId: 1, createdAt: -1 });
 messageSchema.index({ senderId: 1, createdAt: -1 });
 messageSchema.index({ groupId: 1, createdAt: -1 });
 messageSchema.index({ channelId: 1, createdAt: -1 });
+messageSchema.index({ content: "text" });
+messageSchema.index({ createdAt: -1 });
+messageSchema.index({ senderId: 1, receiverId: 1 });
 // Add new privacy-related indexes
 messageSchema.index({ privacyLevel: 1 });
 messageSchema.index({ isEncrypted: 1 });
