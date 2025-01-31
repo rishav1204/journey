@@ -52,6 +52,23 @@ const mediaSettingsSchema = new mongoose.Schema(
       },
     },
 
+    voiceNoteSettings: {
+      quality: {
+        type: String,
+        enum: ['low', 'medium', 'high'],
+        default: 'high'
+      },
+      maxDuration: {
+        type: Number,
+        default: 300 // 5 minutes
+      },
+      noiseReduction: {
+        enabled: Boolean,
+        level: Number
+      },
+      autoTranscribe: Boolean
+    },
+
     // Storage Management
     storage: {
       preferences: {

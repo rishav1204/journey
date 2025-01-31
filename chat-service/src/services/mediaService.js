@@ -2,8 +2,11 @@
 import { uploadToCloud, deleteFromCloud } from "../utils/cloudStorage.js";
 import Media from "../database/models/Media.js";
 import MediaSettings from "../database/models/MediaSettings.js";
+import VoiceNote from "../models/VoiceNote.js";
 import fs from "fs/promises";
 import logger from "../utils/logger.js";
+import { processAudio } from "../utils/audioProcessor.js";
+import { NotFoundError } from "../utils/errors.js";
 
 export const uploadMultipleFilesService = async (files, userId) => {
   const results = [];
@@ -237,4 +240,175 @@ export const toggleCompressionService = async (userId, settings) => {
     logger.error("Error in toggleCompressionService:", error);
     throw error;
   }
+};
+
+export const startVoiceRecordingService = async ({ userId, maxDuration = 300 }) => {
+  try {
+    const voiceNote = await VoiceNote.create({
+      userId,
+      status: 'recording',
+      maxDuration,
+      startedAt: new Date(),
+      settings: {
+        sampleRate: 44100,
+        channels: 1,
+        format: 'mp3',
+        quality: 'high'
+      }
+    });
+
+    return voiceNote;
+  } catch (error) {
+    logger.error('Error in startVoiceRecordingService:', error);
+    throw error;
+  }
+};
+
+export const stopVoiceRecordingService = async ({ userId, recordingId, audioFile }) => {
+  try {
+    const recording = await VoiceNote.findOne({ 
+      _id: recordingId,
+      userId,
+      status: 'recording'
+    });
+
+    if (!recording) {
+      throw new NotFoundError('Recording session not found');
+    }
+
+    // Process audio file
+    const processedAudio = await processAudio(audioFile.buffer, {
+      normalize: true,
+      removeNoise: true,
+      trim: true
+    });
+
+    // Upload to cloud storage
+    const uploadedFile = await uploadToCloud(processedAudio, {
+      folder: 'voice-notes',
+      resource_type: 'video',
+      format: 'mp3'
+    });
+
+    // Update recording with file info
+    recording.status = 'completed';
+    recording.duration = processedAudio.duration;
+    recording.url = uploadedFile.secure_url;
+    recording.size = uploadedFile.bytes;
+    recording.format = uploadedFile.format;
+    recording.waveform = await generateWaveform(processedAudio);
+    await recording.save();
+
+    return recording;
+  } catch (error) {
+    logger.error('Error in stopVoiceRecordingService:', error);
+    throw error;
+  }
+};
+
+export const getVoiceNoteInfoService = async (voiceNoteId, userId) => {
+  try {
+    const voiceNote = await VoiceNote.findOne({
+      _id: voiceNoteId,
+      userId
+    });
+
+    if (!voiceNote) {
+      throw new NotFoundError('Voice note not found');
+    }
+
+    return {
+      id: voiceNote._id,
+      duration: voiceNote.duration,
+      url: voiceNote.url,
+      waveform: voiceNote.waveform,
+      createdAt: voiceNote.createdAt,
+      size: voiceNote.size,
+      format: voiceNote.format
+    };
+  } catch (error) {
+    logger.error('Error in getVoiceNoteInfoService:', error);
+    throw error;
+  }
+};
+
+export const deleteVoiceNoteService = async (voiceNoteId, userId) => {
+  try {
+    const voiceNote = await VoiceNote.findOne({
+      _id: voiceNoteId,
+      userId
+    });
+
+    if (!voiceNote) {
+      throw new NotFoundError('Voice note not found');
+    }
+
+    // Delete from cloud storage if URL exists
+    if (voiceNote.url) {
+      await deleteFromCloud(voiceNote.url);
+    }
+
+    await voiceNote.deleteOne();
+  } catch (error) {
+    logger.error('Error in deleteVoiceNoteService:', error);
+    throw error;
+  }
+};
+
+export const generateWaveformService = async (voiceNoteId, userId) => {
+  try {
+    const voiceNote = await VoiceNote.findOne({
+      _id: voiceNoteId,
+      userId
+    });
+
+    if (!voiceNote) {
+      throw new NotFoundError('Voice note not found');
+    }
+
+    // If waveform already exists, return it
+    if (voiceNote.waveform) {
+      return voiceNote.waveform;
+    }
+
+    // Generate waveform if it doesn't exist
+    const waveform = await generateWaveform(voiceNote.url);
+    
+    // Update voice note with new waveform
+    voiceNote.waveform = waveform;
+    await voiceNote.save();
+
+    return waveform;
+  } catch (error) {
+    logger.error('Error in generateWaveformService:', error);
+    throw error;
+  }
+};
+
+// Helper function to generate waveform data
+const generateWaveform = async (audioBuffer) => {
+  try {
+    // Implementation depends on audio processing library
+    // Example using Web Audio API or node-audio-peaks
+    const peaks = await extractPeaks(audioBuffer);
+    return normalizeWaveform(peaks);
+  } catch (error) {
+    logger.error('Error generating waveform:', error);
+    throw error;
+  }
+};
+
+// Helper function to normalize waveform data
+const normalizeWaveform = (peaks, segments = 100) => {
+  // Normalize peaks to values between 0 and 1
+  // and reduce to specified number of segments
+  const normalized = peaks.map(peak => Math.min(Math.abs(peak), 1));
+  const segmentSize = Math.floor(normalized.length / segments);
+  
+  return Array.from({ length: segments }, (_, i) => {
+    const start = i * segmentSize;
+    const end = start + segmentSize;
+    const segment = normalized.slice(start, end);
+    return segment.reduce((sum, val) => sum + val, 0) / segment.length;
+  });
 };

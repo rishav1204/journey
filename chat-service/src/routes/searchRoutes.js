@@ -1,5 +1,17 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
+import {
+  searchMessages,
+  searchMedia,
+  searchChat,
+  searchGroup,
+  searchChannel,
+  searchUsers,
+  getRecentSearchesController,
+  getPopularSearchesController,
+  deleteSearchHistory,
+  filterMessages,
+} from "../controllers/searchController.js";
 
 const router = Router();
 
@@ -22,8 +34,8 @@ router.get("/search-channel", authMiddleware, searchChannel);
 router.get("/seach-users", authMiddleware, searchUsers);
 
 // Track and retrieve search history
-router.get("/search-history/recent", authMiddleware, getRecentSearches);
-router.get("/search-history/popular", authMiddleware, getPopularSearches);
+router.get("/search-history/recent", authMiddleware, getRecentSearchesController);
+router.get("/search-history/popular", authMiddleware, getPopularSearchesController);
 router.delete("/search-history/:searchId", authMiddleware, deleteSearchHistory);
 
 // Filter messages (unread/starred/media)

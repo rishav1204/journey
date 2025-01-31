@@ -4,6 +4,24 @@ import {
   messageRateLimit,
   joinRateLimit,
 } from "../middlewares/rateLimitMiddleware.js";
+import {
+  createChannel,
+  getChannel,
+  updateChannel,
+  deleteChannel,
+  listChannels,
+  getChannelMessages,
+  sendMessage,
+  getChannelMembers,
+  addMember,
+  removeMember,
+  leaveChannel,
+  subscribeToChannel,
+  broadcastMessage,
+  createNote,
+  getNotes,
+  deleteNote
+} from "../controllers/channelController.js";
 
 const router = Router();
 
@@ -32,7 +50,7 @@ router.post("/:channelId/messages", [authMiddleware, messageRateLimit], sendMess
 router.get("/:channelId/members", authMiddleware, getChannelMembers);
 
 // Add member to channel
-router.post("/:channelId/members", [authMiddleware, joinRequestRateLimit], addMember);
+router.post("/:channelId/members", [authMiddleware, joinRateLimit], addMember);
 
 // Remove member from channel
 router.delete("/:channelId/members", authMiddleware, removeMember);

@@ -70,6 +70,19 @@ const mediaSchema = new mongoose.Schema(
       },
     },
 
+    audioSpecific: {
+      duration: Number,
+      sampleRate: Number,
+      channels: Number,
+      format: String,
+      waveform: [Number], // For visualization
+      transcription: String, // Optional speech-to-text
+      noise: {
+        reduced: Boolean,
+        level: Number
+      }
+    },
+
     // Content Info
     content: {
       caption: String,

@@ -1,5 +1,30 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
+import {
+  sendDirectMessage,
+  getDirectMessages,
+  getConversations,
+  reactToMessage,
+  removeReaction,
+  getMessageReactions,
+  replyToThread,
+  starMessage,
+  getStarredMessages,
+  updateMessageStatus,
+  sendDisappearingMessage,
+  mentionUser,
+  editMessage,
+  deleteMessage,
+  deleteConversation,
+  sendMessageRequest,
+  getMessageRequests,
+  acceptMessageRequest,
+  rejectMessageRequest,
+  scheduleMessage,
+  getScheduledMessages,
+  cancelScheduledMessage,
+  updateScheduledMessage
+} from "../controllers/messageController.js";
 
 const router = Router();
 

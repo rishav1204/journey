@@ -10,6 +10,11 @@ import {
   uploadSticker,
   uploadMultipleFiles,
   toggleCompression,
+  startVoiceRecording,
+  stopVoiceRecording,
+  getVoiceNoteInfo,
+  deleteVoiceNote,
+  generateWaveform,
 } from "../controllers/mediaController.js";
 import rateLimit from "express-rate-limit";
 
@@ -51,6 +56,42 @@ router.post(
   authMiddleware,
   uploadMiddleware.single("audio"),
   uploadVoiceNote
+);
+
+// Start voice recording session
+router.post(
+  "/voice/start", 
+  authMiddleware,
+  startVoiceRecording
+);
+
+// Stop and save voice recording
+router.post(
+  "/voice/stop",
+  authMiddleware, 
+  uploadMiddleware.single("audio"),
+  stopVoiceRecording
+);
+
+// Get voice note details including waveform
+router.get(
+  "/voice/:voiceNoteId",
+  authMiddleware,
+  getVoiceNoteInfo
+);
+
+// Delete voice note
+router.delete(
+  "/voice/:voiceNoteId",
+  authMiddleware,
+  deleteVoiceNote
+);
+
+// Get waveform data for visualization
+router.get(
+  "/voice/:voiceNoteId/waveform",
+  authMiddleware,
+  generateWaveform
 );
 
 router.post(
