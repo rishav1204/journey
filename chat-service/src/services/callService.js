@@ -1,6 +1,7 @@
 // src/services/callService.js
 import Call from "../database/models/Call.js";
 import User from "../database/models/User.js";
+import CallHistory from "../database/models/CallHistory.js";
 import { CallEvents, CallStatus, CallType } from "../constants/callConstants.js";
 import logger from "../utils/logger.js";
 import { NotFoundError, ValidationError, PermissionError } from "../utils/errors.js";
@@ -637,6 +638,147 @@ export const setVirtualBackgroundService = async (callId, userId, backgroundUrl)
     return call;
   } catch (error) {
     logger.error("Virtual background error:", error);
+    throw error;
+  }
+};
+/**
+ * Get detailed information about a specific call
+ */
+export const getCallDetailsService = async (callId, userId) => {
+  try {
+    // Find call with populated participant information
+    const call = await Call.findById(callId)
+      .populate('initiator', 'username profilePicture')
+      .populate('participants.userId', 'username profilePicture');
+
+    if (!call) {
+      throw new NotFoundError('Call not found');
+    }
+
+    // Verify user was part of the call
+    const participant = call.participants.find(p => p.userId._id.toString() === userId);
+    if (!participant) {
+      throw new PermissionError('Not authorized to view call details');
+    }
+
+    // Get call statistics and details
+    const callDetails = {
+      id: call._id,
+      type: call.type,
+      status: call.status,
+      initiator: call.initiator,
+      timing: {
+        startTime: call.timing.startTime,
+        endTime: call.timing.endTime,
+        duration: call.timing.duration,
+        scheduledFor: call.timing.scheduledFor
+      },
+      participants: call.participants.map(p => ({
+        user: p.userId,
+        role: p.role,
+        joinedAt: p.joinedAt,
+        leftAt: p.leftAt,
+        status: p.status
+      })),
+      mediaConfig: call.mediaConfig,
+      features: call.features,
+      recording: call.recording,
+      metrics: call.metrics
+    };
+
+    return callDetails;
+  } catch (error) {
+    logger.error('Error in getCallDetailsService:', error);
+    throw error;
+  }
+};
+/**
+ * Get call history for a user with pagination
+ */
+export const getCallHistoryService = async (userId, page = 1, limit = 10) => {
+  try {
+    // Find call history document for user
+    const callHistory = await CallHistory.findOne({ userId })
+      .populate({
+        path: 'calls.callId',
+        select: 'type status timing participants mediaConfig',
+        populate: {
+          path: 'participants.userId',
+          select: 'username profilePicture'
+        }
+      })
+      .populate({
+        path: 'calls.participants.userId',
+        select: 'username profilePicture'
+      });
+
+    if (!callHistory) {
+      return {
+        calls: [],
+        pagination: {
+          total: 0,
+          page,
+          limit,
+          pages: 0
+        }
+      };
+    }
+
+    // Calculate pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const total = callHistory.calls.length;
+
+    // Get paginated calls
+    const paginatedCalls = callHistory.calls
+      .sort((a, b) => b.timestamp.started - a.timestamp.started)
+      .slice(startIndex, endIndex);
+
+    return {
+      calls: paginatedCalls,
+      statistics: callHistory.statistics,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      }
+    };
+  } catch (error) {
+    logger.error('Error in getCallHistoryService:', error);
+    throw error;
+  }
+};
+/**
+ * Service to toggle participant's mute status in a call
+ */
+export const toggleMuteService = async (callId, userId) => {
+  try {
+    const call = await Call.findById(callId);
+    if (!call) {
+      throw new NotFoundError('Call not found');
+    }
+
+    // Check if user is a participant
+    const participant = call.participants.find(p => p.userId.toString() === userId);
+    if (!participant) {
+      throw new PermissionError('User is not a participant in this call');
+    }
+
+    // Toggle mute status
+    participant.permissions.canSpeak = !participant.permissions.canSpeak;
+    await call.save();
+
+    // Notify other participants
+    emitCallEvent(CallEvents.PARTICIPANT_MUTED, {
+      callId,
+      userId,
+      isMuted: !participant.permissions.canSpeak
+    });
+
+    return call;
+  } catch (error) {
+    logger.error('Error in toggleMuteService:', error);
     throw error;
   }
 };

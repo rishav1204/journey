@@ -9,14 +9,17 @@ const messageSchema = new mongoose.Schema(
       ref: "Conversation",
       required: true,
     },
-    senderId: {
+    sender: {
+      // Change from senderId to sender
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    receiverId: {
+    receiver: {
+      // Change from receiverId to receiver
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
     content: {
       type: String,
@@ -183,58 +186,62 @@ const messageSchema = new mongoose.Schema(
     privacyLevel: {
       type: String,
       enum: ["everyone", "contacts", "nobody"],
-      default: "everyone"
+      default: "everyone",
     },
-    isEncrypted: { 
-      type: Boolean, 
-      default: true 
+    isEncrypted: {
+      type: Boolean,
+      default: true,
     },
     encryptionMetadata: {
       algorithm: String,
       keyId: String,
-      iv: String
+      iv: String,
     },
-    visibleTo: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
-    }],
-    hideFrom: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
-    }],
+    visibleTo: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    hideFrom: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     archiveStatus: {
-      isArchived: { 
-        type: Boolean, 
-        default: false 
+      isArchived: {
+        type: Boolean,
+        default: false,
       },
       archivedAt: Date,
-      archivedBy: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "User" 
-      }
+      archivedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
     },
     userSettings: {
       theme: {
         color: String,
-        background: String
+        background: String,
       },
       nicknames: {
         nicknames: {
           type: Map,
-          of: String // Store nicknames for participants
-        }
+          of: String, // Store nicknames for participants
+        },
       },
       autoReplyInfo: {
         isAutoReply: Boolean,
-        triggerType: String
-      }
+        triggerType: String,
+      },
     },
     aiMetadata: {
       isSuggestedReply: Boolean,
       confidence: Number,
       translatedFrom: String,
-      translatedText: String
-    }
+      translatedText: String,
+    },
   },
   {
     timestamps: true,

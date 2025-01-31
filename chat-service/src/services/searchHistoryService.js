@@ -1,4 +1,4 @@
-import SearchHistory from "../models/SearchHistory.js";
+import SearchHistory from "../database/models/SearchHistory.js";
 import { NotFoundError, AuthorizationError } from "../utils/errors.js";
 import logger from "../utils/logger.js";
 

@@ -1,8 +1,8 @@
-import Message from "../models/Message.js";
-import Media from "../models/Media.js";
-import User from "../models/User.js";
-import Group from "../models/Group.js";
-import Channel from "../models/Channel.js";
+import Message from "../database/models/Message.js";
+import Media from "../database/models/Media.js";
+import User from "../database/models/User.js";
+import Group from "../database/models/Group.js";
+import Channel from "../database/models/Channel.js";
 import { createSearchQuery, createPagination } from "../utils/searchHelpers.js";
 import {
   ValidationError,

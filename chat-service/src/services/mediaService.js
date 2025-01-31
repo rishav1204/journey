@@ -2,7 +2,7 @@
 import { uploadToCloud, deleteFromCloud } from "../utils/cloudStorage.js";
 import Media from "../database/models/Media.js";
 import MediaSettings from "../database/models/MediaSettings.js";
-import VoiceNote from "../models/VoiceNote.js";
+import VoiceNote from "../database/models/VoiceNote.js";
 import fs from "fs/promises";
 import logger from "../utils/logger.js";
 import { processAudio } from "../utils/audioProcessor.js";

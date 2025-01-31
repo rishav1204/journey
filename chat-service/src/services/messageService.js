@@ -3,6 +3,7 @@ import Message from "../database/models/Message.js";
 import Conversation from "../database/models/Conversation.js";
 import MessageRequest from "../database/models/MessageRequest.js";
 import ScheduledMessage from "../database/models/ScheduledMessage.js";
+import User from "../database/models/User.js";
 import {
   NotFoundError,
   ValidationError,
@@ -13,6 +14,7 @@ import { uploadToCloud, deleteFromCloud } from "../utils/cloudStorage.js";
 import { emitSocketEvent } from "../utils/socketEvents.js";
 import { validateMessageContent } from "../utils/messageValidator.js";
 import { encryptMessage, decryptMessage } from "../utils/encryption.js";
+import mongoose from "mongoose"
 
 /**
  * Send a direct message to a user
@@ -21,58 +23,64 @@ export const sendDirectMessageService = async ({
   senderId,
   receiverId,
   content,
-  type,
-  media,
+  type = "text",
+  media = []
 }) => {
   try {
-    // Validate message content
-    const validationResult = validateMessageContent(content, type);
-    if (!validationResult.isValid) {
-      throw new ValidationError(validationResult.error);
-    }
+    logger.debug("Processing message request:", {
+      senderId,
+      receiverId,
+      type
+    });
+
+    // Convert IDs to ObjectId
+    const senderObjectId = new mongoose.Types.ObjectId(senderId);
+    const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
 
     // Find or create conversation
     let conversation = await Conversation.findOne({
-      participants: { $all: [senderId, receiverId] },
+      participants: { $all: [senderObjectId, receiverObjectId] }
     });
 
     if (!conversation) {
       conversation = await Conversation.create({
-        participants: [senderId, receiverId],
-        type: "direct",
+        participants: [
+          { userId: senderObjectId, role: "member" },
+          { userId: receiverObjectId, role: "member" }
+        ],
+        type: "direct"
       });
     }
 
-    // Handle media uploads if any
-    let mediaUrls = [];
-    if (media && media.length > 0) {
-      mediaUrls = await Promise.all(media.map((file) => uploadToCloud(file)));
-    }
-
-    // Create and save message
+    // Create message with explicit sender field
     const message = await Message.create({
       conversationId: conversation._id,
-      senderId,
-      receiverId,
-      content: await encryptMessage(content),
-      messageType: type,
-      media: mediaUrls,
-      status: "sent",
+      sender: senderObjectId,    // Use sender instead of senderId
+      receiver: receiverObjectId,
+      content,
+      type,
+      media,
+      status: "sent"
     });
 
-    // Emit socket event for real-time update
+    // Populate sender and receiver details
+    const populatedMessage = await message.populate([
+      { path: "sender", select: "username profilePicture" },
+      { path: "receiver", select: "username profilePicture" }
+    ]);
+
+    // Emit socket event
     emitSocketEvent(`user:${receiverId}`, "new_message", {
-      message,
-      conversation,
+      message: populatedMessage,
+      conversationId: conversation._id
     });
 
-    return message;
+    return populatedMessage;
   } catch (error) {
     logger.error("Error in sendDirectMessageService:", error);
     throw error;
   }
 };
-
 /**
  * Get direct messages between two users
  */
@@ -882,6 +890,40 @@ export const cancelScheduledMessageService = async (messageId, userId) => {
     return { message: 'Scheduled message cancelled successfully' };
   } catch (error) {
     logger.error('Error in cancelScheduledMessageService:', error);
+    throw error;
+  }
+};
+/**
+ * Remove reaction from a message
+ */
+export const removeReactionService = async (messageId, userId) => {
+  try {
+    const message = await Message.findById(messageId);
+    if (!message) {
+      throw new NotFoundError('Message not found');
+    }
+
+    // Remove the reaction
+    const reactionIndex = message.reactions.findIndex(
+      reaction => reaction.userId.toString() === userId
+    );
+
+    if (reactionIndex === -1) {
+      throw new ValidationError('No reaction found from this user');
+    }
+
+    message.reactions.splice(reactionIndex, 1);
+    await message.save();
+
+    // Notify other participants
+    emitSocketEvent(`message:${messageId}`, 'reaction_removed', {
+      messageId,
+      userId
+    });
+
+    return { message: 'Reaction removed successfully' };
+  } catch (error) {
+    logger.error('Error in removeReactionService:', error);
     throw error;
   }
 };

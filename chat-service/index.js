@@ -1,8 +1,11 @@
+// src/index.js
 import app from "./src/app.js";
 import connectDB from "./src/database/dbConnection.js";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import dotenv from "dotenv";
+import logger from "./src/utils/logger.js"; // Add this import
+
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
@@ -11,11 +14,11 @@ const PORT = process.env.PORT || 5000;
 const httpServer = createServer(app);
 
 // Initialize Socket.IO
-const io = new Server(httpServer, {
+export const io = new Server(httpServer, {
   cors: {
     origin: process.env.CLIENT_URL || "http://localhost:3000",
-    methods: ["GET", "POST"]
-  }
+    methods: ["GET", "POST"],
+  },
 });
 
 // Socket.IO connection handler
@@ -53,13 +56,11 @@ const startServer = async () => {
     // Graceful shutdown handlers
     process.on("SIGTERM", gracefulShutdown);
     process.on("SIGINT", gracefulShutdown);
-
   } catch (err) {
     logger.error(`Failed to connect to MongoDB: ${err.message}`);
     process.exit(1);
   }
 };
-
 
 // Graceful shutdown function
 const gracefulShutdown = async () => {

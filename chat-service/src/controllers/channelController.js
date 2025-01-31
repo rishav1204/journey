@@ -16,7 +16,7 @@ import {
   createNoteService,
   getNotesService,
   deleteNoteService,
-} from "../services/channelServices.js";
+} from "../services/channelService.js";
 import logger from "../utils/logger.js";
 
 export const createChannel = async (req, res) => {

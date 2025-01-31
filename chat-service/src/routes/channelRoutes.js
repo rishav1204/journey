@@ -3,7 +3,7 @@ import { authMiddleware } from "../middlewares/authMiddleware.js";
 import {
   messageRateLimit,
   joinRateLimit,
-} from "../middlewares/rateLimitMiddleware.js";
+} from "../middlewares/rateLimiterChannel.js";
 import {
   createChannel,
   getChannel,

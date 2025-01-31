@@ -1,4 +1,23 @@
 // src/utils/errors.js
+
+// Base error classes
+export class AppError extends Error {
+  constructor(message, statusCode) {
+    super(message);
+    this.statusCode = statusCode;
+    this.status = `${statusCode}`.startsWith("4") ? "fail" : "error";
+  }
+}
+
+export class CallError extends Error {
+  constructor(message, details = {}) {
+    super(message);
+    this.name = "CallError";
+    this.details = details;
+  }
+}
+
+// Specific error classes
 export class NotFoundError extends Error {
   constructor(message) {
     super(message);
@@ -23,38 +42,31 @@ export class PermissionError extends Error {
   }
 }
 
-export class CallError extends Error {
-  constructor(message, details = {}) {
-    super(message);
-    this.name = 'CallError';
-    this.details = details;
-  }
-}
-
-export class SchedulingError extends CallError {
-  constructor(message, details = {}) {
-    super(message, details);
-    this.name = 'SchedulingError';
-  }
-}
-
 export class AuthorizationError extends AppError {
   constructor(message) {
     super(message, 403);
   }
 }
 
-export class NotFoundError extends AppError {
-  constructor(message) {
-    super(message, 404);
+export class RecordingError extends CallError {
+  constructor(message, details = {}) {
+    super(message, details);
+    this.name = "RecordingError";
   }
 }
 
-export class AppError extends Error {
-  constructor(message, statusCode) {
+export class SchedulingError extends CallError {
+  constructor(message, details = {}) {
+    super(message, details);
+    this.name = "SchedulingError";
+  }
+}
+
+export class CallValidationError extends Error {
+  constructor(message, details = {}) {
     super(message);
-    this.statusCode = statusCode;
-    this.status = `${statusCode}`.startsWith("4") ? "fail" : "error";
+    this.name = "CallValidationError";
+    this.status = 400;
+    this.details = details;
   }
 }
-

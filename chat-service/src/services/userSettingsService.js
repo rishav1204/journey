@@ -1,6 +1,6 @@
 // src/services/userSettingsService.js
 import User from "../database/models/User.js";
-import Device from "../database/models/Device.js";
+import Device from "../database/models/DeviceSync.js";
 import { NotFoundError, ValidationError } from "../utils/errors.js";
 import { emitSocketEvent } from "../utils/socketEvents.js";
 import logger from "../utils/logger.js";

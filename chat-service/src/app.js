@@ -30,7 +30,7 @@ app.use(
 
 // Request logging middleware
 app.use((req, res, next) => {
-  info(`${req.method} ${req.url}`);
+  logger.info(`${req.method} ${req.url}`);
   next();
 });
 

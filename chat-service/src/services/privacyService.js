@@ -1,7 +1,7 @@
 // src/services/privacyServices.js
 import User from "../database/models/User.js";
-import Chat from "../database/models/Chat.js";
-import Block from "../database/models/Block.js";
+import Conversation from "../database/models/Conversation.js";
+import Block from "../database/models/BlockStatus.js";
 import Report from "../database/models/Report.js";
 import { NotFoundError } from "../utils/errors.js";
 import { emitSocketEvent } from "../utils/socketEvents.js";

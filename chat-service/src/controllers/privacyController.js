@@ -12,7 +12,7 @@ import {
   updateTypingStatusService,
   getOnlineStatusService,
   updateUserStatusService,
-} from "../services/privacyServices.js";
+} from "../services/privacyService.js";
 import logger from "../utils/logger.js";
 
 export const blockUser = async (req, res) => {

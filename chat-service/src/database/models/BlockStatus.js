@@ -77,6 +77,6 @@ blockStatusSchema.pre("save", function (next) {
   next();
 });
 
-const BlockStatus = mongoose.model("BlockStatus", blockStatusSchema);
+const Block = mongoose.model("BlockStatus", blockStatusSchema);
 
-export default BlockStatus;
+export default Block;

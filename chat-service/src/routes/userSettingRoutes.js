@@ -1,5 +1,15 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
+import {
+    updateTheme,
+    updateNickname,
+    updateBio,
+    updateProfilePicture,
+    setAutoReply,
+    toggleNotifications,
+    syncDevice,
+    toggleAIReplies
+} from "../controllers/userSettingsController.js";
 
 const router = Router();
 

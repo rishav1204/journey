@@ -48,7 +48,30 @@ export const startVoiceCall = async (req, res) => {
   }
 };
 
-const deviceInfo = req.deviceInfo; // From middleware
+export const startVideoCall = async (req, res) => {
+  try {
+    const { recipientId, isGroupCall = false } = req.body;
+    const initiatorId = req.user.id;
+
+    const call = await initiateVideoCallService({
+      initiatorId,
+      recipientId,
+      isGroupCall,
+      deviceInfo: req.deviceInfo
+    });
+
+    res.status(200).json({
+      success: true,
+      data: call
+    });
+  } catch (error) {
+    logger.error('Error starting video call:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
 
 export const joinVideoCall = async (req, res) => {
   try {

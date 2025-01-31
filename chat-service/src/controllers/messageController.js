@@ -31,27 +31,36 @@ import {
 
 export const sendDirectMessage = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const senderId = req.user.id;
+    // CHANGE THIS PART
+    // Instead of using req.user._id
+    const senderId = req.user.id; // Keep using .id since it's provided by auth middleware
+
+    const { userId: receiverId } = req.params;
     const { content, type = "text", media } = req.body;
+
+    logger.debug("Sending message:", {
+      senderId,
+      receiverId,
+      type
+    });
 
     const message = await sendDirectMessageService({
       senderId,
-      receiverId: userId,
+      receiverId,
       content,
       type,
-      media,
+      media
     });
 
     res.status(201).json({
       success: true,
-      data: message,
+      data: message
     });
   } catch (error) {
-    logger.error("Error sending direct message:", error);
+    logger.error("Error in sendDirectMessage:", error);
     res.status(error.status || 500).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
