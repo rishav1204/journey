@@ -1,5 +1,18 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
+import {
+  blockUser,
+  unblockUser,
+  reportUser,
+  updateLastSeenSettings,
+  archiveChat,
+  unarchiveChat,
+  muteChat,
+  toggleEncryption,
+  updateTypingStatus,
+  getOnlineStatus,
+  updateUserStatus
+} from "../controllers/privacyController.js";
 
 const router = Router();
 
