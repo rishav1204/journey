@@ -1,5 +1,26 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
+import {
+  createGroup,
+  updateGroup,
+  deleteGroup,
+  addMembers,
+  getMembers,
+  getGroupMessages,
+  sendGroupMessage,
+    getPolls,
+    deleteMessage,
+    deleteAllMessages,
+    editMessage,
+    leaveGroup,
+    removeMember,
+    createPoll,
+    votePoll,
+    deletePoll,
+    unvotePoll,
+    pinMessage,
+    unpinMessage
+} from "../controllers/groupChatController.js";
 
 const router = Router();
 
@@ -23,6 +44,18 @@ router.get("/:groupId/messages", authMiddleware, getGroupMessages);
 
 // Send message to group
 router.post("/:groupId/messages", authMiddleware, sendGroupMessage);
+
+// Get all polls in group
+router.get("/:groupId/polls", authMiddleware, getPolls);
+
+// Delete a message from group
+router.delete("/:groupId/messages/:messageId", authMiddleware, deleteMessage);
+
+// Delete all messages in group
+router.delete("/:groupId/messages", authMiddleware, deleteAllMessages);
+
+// Edit message in group
+router.patch("/:groupId/messages/:messageId", authMiddleware, editMessage);
 
 // Leave group
 router.delete("/:groupId/leave", authMiddleware, leaveGroup);
