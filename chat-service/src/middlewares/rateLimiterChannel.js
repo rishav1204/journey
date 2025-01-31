@@ -1,27 +1,28 @@
-import Redis from "ioredis";
-import { PermissionError } from "../utils/errors.js";
+import RateLimiter from "../utils/RateLimiter.js";
 
-const redis = new Redis(process.env.REDIS_URL);
+const messageRateLimiter = new RateLimiter("message", 50, 60); // 50 messages per minute
+const joinRateLimiter = new RateLimiter("join", 5, 3600); // 5 joins per hour
 
 export const messageRateLimit = async (req, res, next) => {
-  const { channelId } = req.params;
-  const userId = req.user.id;
-  const key = `rateLimit:message:${channelId}:${userId}`;
-
   try {
-    const channel = await Channel.findById(channelId);
-    const { count, timeWindow } = channel.rateLimits.messages;
+    const userId = req.user.id;
+    const channelId = req.params.channelId;
+    const key = `${userId}:${channelId}`;
 
-    const current = await redis.incr(key);
-    if (current === 1) {
-      await redis.expire(key, timeWindow);
+    const result = await messageRateLimiter.consume(key);
+
+    if (!result.success) {
+      return res.status(429).json({
+        success: false,
+        message: `Rate limit exceeded. Try again in ${result.resetAfter} seconds`,
+        resetAfter: result.resetAfter,
+      });
     }
 
-    if (current > count) {
-      throw new PermissionError(
-        `Rate limit exceeded. Try again in ${timeWindow} seconds`
-      );
-    }
+    res.set({
+      "X-RateLimit-Remaining": result.remaining,
+      "X-RateLimit-Reset": result.resetAfter,
+    });
 
     next();
   } catch (error) {
@@ -29,21 +30,23 @@ export const messageRateLimit = async (req, res, next) => {
   }
 };
 
-export const joinRequestRateLimit = async (req, res, next) => {
-  const userId = req.user.id;
-  const key = `rateLimit:join:${userId}`;
-
+export const joinRateLimit = async (req, res, next) => {
   try {
-    const current = await redis.incr(key);
-    if (current === 1) {
-      await redis.expire(key, 3600); // 1 hour window
+    const userId = req.user.id;
+    const result = await joinRateLimiter.consume(userId);
+
+    if (!result.success) {
+      return res.status(429).json({
+        success: false,
+        message: `Join rate limit exceeded. Try again in ${result.resetAfter} seconds`,
+        resetAfter: result.resetAfter,
+      });
     }
 
-    if (current > 5) {
-      throw new PermissionError(
-        "Join request rate limit exceeded. Try again in 1 hour"
-      );
-    }
+    res.set({
+      "X-RateLimit-Remaining": result.remaining,
+      "X-RateLimit-Reset": result.resetAfter,
+    });
 
     next();
   } catch (error) {

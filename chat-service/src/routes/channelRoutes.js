@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import {
   messageRateLimit,
-  joinRequestRateLimit,
+  joinRateLimit,
 } from "../middlewares/rateLimitMiddleware.js";
 
 const router = Router();
@@ -44,7 +44,7 @@ router.delete("/:channelId/leave", authMiddleware, leaveChannel);
 router.post("/:channelId/subscribe", authMiddleware, subscribeToChannel);
 
 // Send broadcast message to channel
-router.post("/:channelId/broadcast", authMiddleware, broadcastMessage);
+router.post("/:channelId/broadcast", [authMiddleware, messageRateLimit], broadcastMessage);
 
 // Create status note (like Instagram)
 router.post("/notes/create", authMiddleware, createNote);
