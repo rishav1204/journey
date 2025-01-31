@@ -98,6 +98,17 @@ const channelSchema = new mongoose.Schema(
       },
     },
 
+    rateLimits: {
+    messages: {
+      count: { type: Number, default: 50 },
+      timeWindow: { type: Number, default: 60 } // in seconds
+    },
+    joinRequests: {
+      count: { type: Number, default: 5 },
+      timeWindow: { type: Number, default: 3600 } // in seconds
+    }
+  },
+
     // Analytics & Stats
     stats: {
       subscriberCount: { type: Number, default: 0 },

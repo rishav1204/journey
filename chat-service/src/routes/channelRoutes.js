@@ -1,10 +1,14 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
+import {
+  messageRateLimit,
+  joinRequestRateLimit,
+} from "../middlewares/rateLimitMiddleware.js";
 
 const router = Router();
 
 // Create one-way broadcast channel
-router.post("/create-channel", authMiddleware, createChannel);
+router.post("/create-channel", authMiddleware, messageRateLimit, createChannel);
 
 // Get channel details
 router.get("/:channelId", authMiddleware, getChannel);
@@ -22,13 +26,13 @@ router.get("/list-channels", authMiddleware, listChannels);
 router.get("/:channelId/messages", authMiddleware, getChannelMessages);
 
 // Send message to channel
-router.post("/:channelId/messages", authMiddleware, sendMessage);
+router.post("/:channelId/messages", [authMiddleware, messageRateLimit], sendMessage);
 
 // Get channel members
 router.get("/:channelId/members", authMiddleware, getChannelMembers);
 
 // Add member to channel
-router.post("/:channelId/members", authMiddleware, addMember);
+router.post("/:channelId/members", [authMiddleware, joinRequestRateLimit], addMember);
 
 // Remove member from channel
 router.delete("/:channelId/members", authMiddleware, removeMember);
