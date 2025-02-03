@@ -310,3 +310,11 @@
 {"level":"info","message":"Mongoose connected to MongoDB","timestamp":"2025-01-25T18:31:26.043Z"}
 {"level":"warn","message":"MongoDB connection disconnected","timestamp":"2025-01-26T08:47:02.232Z"}
 {"level":"info","message":"Mongoose connected to MongoDB","timestamp":"2025-01-26T08:47:02.243Z"}
+{"level":"info","message":"Logger initialized","timestamp":"2025-01-31T07:00:09.407Z"}
+{"level":"info","message":"Starting application...","timestamp":"2025-01-31T07:00:20.391Z"}
+{"level":"info","message":"MongoDB Connected: journey-shard-00-00.ir5vs.mongodb.net","timestamp":"2025-01-31T07:00:20.882Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-01-31T07:00:20.883Z"}
+{"level":"info","message":"Server is running on port 3000","timestamp":"2025-01-31T07:00:20.888Z"}
+{"level":"error","message":"Error: Invalid credentials\n    at loginService (file:///C:/Users/RishavKumarJha/Desktop/my-backend/fullstack/journey/user-service/src/services/authServices.js:67:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async login (file:///C:/Users/RishavKumarJha/Desktop/my-backend/fullstack/journey/user-service/src/controllers/authController.js:61:24)","timestamp":"2025-01-31T07:00:28.057Z"}
+{"level":"error","message":"Error: Invalid credentials\n    at loginService (file:///C:/Users/RishavKumarJha/Desktop/my-backend/fullstack/journey/user-service/src/services/authServices.js:67:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async login (file:///C:/Users/RishavKumarJha/Desktop/my-backend/fullstack/journey/user-service/src/controllers/authController.js:61:24)","timestamp":"2025-01-31T07:00:31.828Z"}
+{"level":"info","message":"Token generated successfully.","timestamp":"2025-01-31T07:01:18.594Z"}
