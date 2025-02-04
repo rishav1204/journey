@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import { ThemedText } from '@/components/ui/ThemedText';
-import * as authService from '@/services/auth';
+import * as authService from "@/services/auth";
 
 export function RegisterForm() {
   const [loading, setLoading] = useState(false);
