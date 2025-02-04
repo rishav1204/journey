@@ -12,7 +12,6 @@ import {
 import logger from "../utils/logger.js";
 import { uploadToCloud, deleteFromCloud } from "../utils/cloudStorage.js";
 import { emitSocketEvent } from "../utils/socketEvents.js";
-import { validateMessageContent } from "../utils/messageValidator.js";
 import { encryptMessage, decryptMessage } from "../utils/encryption.js";
 import mongoose from "mongoose"
 
@@ -24,58 +23,60 @@ export const sendDirectMessageService = async ({
   receiverId,
   content,
   type = "text",
-  media = []
+  media = [],
 }) => {
   try {
-    logger.debug("Processing message request:", {
-      senderId,
-      receiverId,
-      type
-    });
+    // Encrypt the content before saving
+    const encryptedContent = await encryptMessage(content);
 
-    // Convert IDs to ObjectId
     const senderObjectId = new mongoose.Types.ObjectId(senderId);
     const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
 
-    // Find or create conversation
     let conversation = await Conversation.findOne({
-      participants: { $all: [senderObjectId, receiverObjectId] }
+      participants: { $all: [senderObjectId, receiverObjectId] },
     });
 
     if (!conversation) {
       conversation = await Conversation.create({
         participants: [
           { userId: senderObjectId, role: "member" },
-          { userId: receiverObjectId, role: "member" }
+          { userId: receiverObjectId, role: "member" },
         ],
-        type: "direct"
+        type: "direct",
       });
     }
 
-    // Create message with explicit sender field
+    // Create message with encrypted content
     const message = await Message.create({
       conversationId: conversation._id,
-      sender: senderObjectId,    // Use sender instead of senderId
+      sender: senderObjectId,
       receiver: receiverObjectId,
-      content,
-      type,
+      content: encryptedContent, // Save the encrypted content
+      messageType: type,
       media,
-      status: "sent"
+      status: "sent",
+      isEncrypted: true, // Make sure to set this flag
     });
 
     // Populate sender and receiver details
     const populatedMessage = await message.populate([
       { path: "sender", select: "username profilePicture" },
-      { path: "receiver", select: "username profilePicture" }
+      { path: "receiver", select: "username profilePicture" },
     ]);
 
-    // Emit socket event
+    // Return decrypted content for immediate use
+    const messageToReturn = {
+      ...populatedMessage.toObject(),
+      content: content, // Return original content for immediate use
+    };
+
+    // Emit socket event with decrypted content
     emitSocketEvent(`user:${receiverId}`, "new_message", {
-      message: populatedMessage,
-      conversationId: conversation._id
+      message: messageToReturn,
+      conversationId: conversation._id,
     });
 
-    return populatedMessage;
+    return messageToReturn;
   } catch (error) {
     logger.error("Error in sendDirectMessageService:", error);
     throw error;
@@ -87,39 +88,60 @@ export const sendDirectMessageService = async ({
 export const getDirectMessagesService = async (
   currentUserId,
   otherUserId,
-  page,
-  limit
+  page = 1,
+  limit = 50
 ) => {
   try {
-    const conversation = await Conversation.findOne({
-      participants: { $all: [currentUserId, otherUserId] },
+    logger.debug("Starting getDirectMessagesService", {
+      currentUserId,
+      otherUserId,
     });
 
-    if (!conversation) {
-      return {
-        messages: [],
-        totalCount: 0,
-      };
-    }
-
+    const currentUserObjectId = new mongoose.Types.ObjectId(currentUserId);
+    const otherUserObjectId = new mongoose.Types.ObjectId(otherUserId);
     const skip = (page - 1) * limit;
 
     const [messages, totalCount] = await Promise.all([
-      Message.find({ conversationId: conversation._id })
+      Message.find({
+        $or: [
+          { sender: currentUserObjectId, receiver: otherUserObjectId },
+          { sender: otherUserObjectId, receiver: currentUserObjectId },
+        ],
+      })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate("senderId", "username profilePicture")
+        .populate("sender", "username profilePicture")
+        .populate("receiver", "username profilePicture")
         .lean(),
-      Message.countDocuments({ conversationId: conversation._id }),
+      Message.countDocuments({
+        $or: [
+          { sender: currentUserObjectId, receiver: otherUserObjectId },
+          { sender: otherUserObjectId, receiver: currentUserObjectId },
+        ],
+      }),
     ]);
+
+    logger.debug(`Found ${messages.length} messages`);
 
     // Decrypt messages
     const decryptedMessages = await Promise.all(
-      messages.map(async (msg) => ({
-        ...msg,
-        content: await decryptMessage(msg.content),
-      }))
+      messages.map(async (msg) => {
+        try {
+          return {
+            ...msg,
+            content: msg.isEncrypted
+              ? await decryptMessage(msg.content)
+              : msg.content,
+          };
+        } catch (error) {
+          logger.error(`Failed to decrypt message ${msg._id}:`, error);
+          return {
+            ...msg,
+            content: "[Decryption Failed]",
+          };
+        }
+      })
     );
 
     return {
@@ -131,19 +153,18 @@ export const getDirectMessagesService = async (
     throw error;
   }
 };
-
 /**
  * Get user's conversations
  */
 export const getConversationsService = async (userId, page, limit) => {
   try {
     const conversations = await Conversation.find({
-      participants: userId,
+      "participants.userId": userId,
     })
       .sort({ updatedAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
-      .populate("participants", "username profilePicture")
+      .populate("participants.userId", "username profilePicture")
       .lean();
 
     // Get last message for each conversation
@@ -153,6 +174,7 @@ export const getConversationsService = async (userId, page, limit) => {
           conversationId: conv._id,
         })
           .sort({ createdAt: -1 })
+          .populate("sender", "username profilePicture")
           .lean();
 
         return {
@@ -160,14 +182,23 @@ export const getConversationsService = async (userId, page, limit) => {
           lastMessage: lastMessage
             ? {
                 ...lastMessage,
-                content: await decryptMessage(lastMessage.content),
+                content: lastMessage.isEncrypted
+                  ? await decryptMessage(lastMessage.content)
+                  : lastMessage.content,
               }
             : null,
         };
       })
     );
 
-    return conversationsWithLastMessage;
+    return {
+      conversations: conversationsWithLastMessage,
+      totalCount: await Conversation.countDocuments({
+        "participants.userId": userId,
+      }),
+      page,
+      limit,
+    };
   } catch (error) {
     logger.error("Error in getConversationsService:", error);
     throw error;
@@ -238,42 +269,73 @@ export const getMessageReactionsService = async (messageId) => {
 /**
  * Reply to thread
  */
-export const replyToThreadService = async ({ parentMessageId, senderId, content, type, media }) => {
+export const replyToThreadService = async ({
+  parentMessageId,
+  senderId,
+  content,
+  type = "text",
+  media = [],
+}) => {
   try {
     const parentMessage = await Message.findById(parentMessageId);
     if (!parentMessage) {
-      throw new NotFoundError('Parent message not found');
+      throw new NotFoundError("Parent message not found");
     }
 
-    // Handle media uploads
+    // Handle media uploads first
     let mediaUrls = [];
     if (media && media.length > 0) {
-      mediaUrls = await Promise.all(media.map(file => uploadToCloud(file)));
+      mediaUrls = await Promise.all(media.map((file) => uploadToCloud(file)));
     }
+
+    // Encrypt the reply content
+    const encryptedContent = await encryptMessage(content);
+    const [salt, iv, tag] = encryptedContent.split(":"); // Extract encryption metadata
 
     const reply = await Message.create({
       conversationId: parentMessage.conversationId,
-      senderId,
-      content: await encryptMessage(content),
+      sender: senderId,
+      receiver:
+        parentMessage.sender.toString() === senderId
+          ? parentMessage.receiver
+          : parentMessage.sender,
+      content: encryptedContent,
       messageType: type,
       media: mediaUrls,
       parentMessageId,
-      isReply: true
+      isReply: true,
+      isEncrypted: true,
+      encryptionMetadata: {
+        algorithm: "aes-256-gcm",
+        salt,
+        iv,
+        tag,
+      },
     });
 
     // Update parent message
     parentMessage.replies.push(reply._id);
     await parentMessage.save();
 
-    // Emit socket event
-    emitSocketEvent(`conversation:${parentMessage.conversationId}`, 'new_reply', {
-      reply,
-      parentMessageId
-    });
+    // For immediate response, use the unencrypted content
+    const decryptedReply = {
+      ...reply.toObject(),
+      content, // Original unencrypted content
+    };
+
+    // Emit socket event with decrypted content
+    emitSocketEvent(
+      `conversation:${parentMessage.conversationId}`,
+      "new_reply",
+      {
+        reply: decryptedReply,
+        parentMessageId,
+      }
+    );
 
     return reply;
   } catch (error) {
-    logger.error('Error in replyToThreadService:', error);
+    logger.error("Error in replyToThreadService:", error);
     throw error;
   }
 };
@@ -283,27 +345,47 @@ export const replyToThreadService = async ({ parentMessageId, senderId, content,
  */
 export const starMessageService = async (messageId, userId) => {
   try {
+    // Find message and check if it exists
     const message = await Message.findById(messageId);
     if (!message) {
-      throw new NotFoundError('Message not found');
+      throw new NotFoundError("Message not found");
     }
 
-    // Toggle star status
-    const isStarred = message.starredBy.includes(userId);
+    // Initialize starredBy if it doesn't exist
+    if (!Array.isArray(message.starredBy)) {
+      message.starredBy = [];
+    }
+
+    // Check if message is already starred by user
+    const userIdStr = userId.toString();
+    const isStarred = message.starredBy.some(
+      (id) => id.toString() === userIdStr
+    );
+
     if (isStarred) {
-      message.starredBy = message.starredBy.filter(id => id.toString() !== userId);
+      // Remove star
+      message.starredBy = message.starredBy.filter(
+        (id) => id.toString() !== userIdStr
+      );
     } else {
+      // Add star
       message.starredBy.push(userId);
     }
 
+    // Update isStarred flag
+    message.isStarred = message.starredBy.length > 0;
+
     await message.save();
-    return message;
+
+    return {
+      messageId: message._id,
+      isStarred: message.isStarred,
+    };
   } catch (error) {
-    logger.error('Error in starMessageService:', error);
+    logger.error("Error in starMessageService:", error);
     throw error;
   }
 };
-
 /**
  * Get starred messages
  */
@@ -340,29 +422,43 @@ export const updateMessageStatusService = async (messageId, userId, status) => {
   try {
     const message = await Message.findById(messageId);
     if (!message) {
-      throw new NotFoundError('Message not found');
+      throw new NotFoundError("Message not found");
     }
 
     // Update status
-    message.status = status;
-    message.statusUpdates.push({
-      status,
-      updatedBy: userId,
-      timestamp: new Date()
-    });
+    if (status === "read") {
+      // Add to readBy if not already present
+      if (!message.readBy.some((read) => read.userId.equals(userId))) {
+        message.readBy.push({
+          userId,
+          readAt: new Date(),
+        });
+      }
+    } else if (status === "delivered") {
+      // Add to deliveredTo if not already present
+      if (
+        !message.deliveredTo.some((delivery) => delivery.userId.equals(userId))
+      ) {
+        message.deliveredTo.push({
+          userId,
+          deliveredAt: new Date(),
+        });
+      }
+    }
 
+    message.status = status;
     await message.save();
 
-    // Emit socket event
-    emitSocketEvent(`message:${messageId}`, 'status_update', {
+    // Notify sender that message was read/delivered
+    emitSocketEvent(`user:${message.sender}`, "message_status_updated", {
       messageId,
       status,
-      updatedBy: userId
+      updatedBy: userId,
     });
 
     return message;
   } catch (error) {
-    logger.error('Error in updateMessageStatusService:', error);
+    logger.error("Error in updateMessageStatusService:", error);
     throw error;
   }
 };
@@ -370,30 +466,56 @@ export const updateMessageStatusService = async (messageId, userId, status) => {
 /**
  * Send disappearing message
  */
-export const sendDisappearingMessageService = async ({
-  senderId,
-  receiverId,
-  content,
-  type,
-  media,
-  duration
+// In chat-service/src/services/messageService.js
+export const sendDisappearingMessageService = async ({ 
+  senderId, 
+  receiverId, 
+  content, 
+  duration, 
+  type = 'text', 
+  media 
 }) => {
   try {
+    // Find or create conversation
+    const senderObjectId = new mongoose.Types.ObjectId(senderId);
+    const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
+
+    let conversation = await Conversation.findOne({
+      participants: { $all: [senderObjectId, receiverObjectId] }
+    });
+
+    if (!conversation) {
+      conversation = await Conversation.create({
+        participants: [
+          { userId: senderObjectId, role: 'member' },
+          { userId: receiverObjectId, role: 'member' }
+        ],
+        type: 'direct'
+      });
+    }
+
     // Upload media if any
     let mediaUrls = [];
     if (media && media.length > 0) {
       mediaUrls = await Promise.all(media.map(file => uploadToCloud(file)));
     }
 
+    // Encrypt the message content
+    const encryptedContent = await encryptMessage(content);
+
+    // Create message with encrypted content
     const message = await Message.create({
-      senderId,
-      receiverId,
-      content: await encryptMessage(content),
-      messageType: type,
+      conversationId: conversation._id,
+      sender: senderId,
+      receiver: receiverId,
+      content: encryptedContent,
+      type,
       media: mediaUrls,
-      isDisappearing: true,
-      disappearAfter: duration,
-      expiresAt: new Date(Date.now() + duration * 1000)
+      isEncrypted: true,
+      disappearingMessage: {
+        enabled: true,
+        duration: duration || 30 // Default 30 seconds if not specified
+      }
     });
 
     // Schedule message deletion
@@ -403,9 +525,24 @@ export const sendDisappearingMessageService = async ({
       if (mediaUrls.length > 0) {
         await Promise.all(mediaUrls.map(url => deleteFromCloud(url)));
       }
-    }, duration * 1000);
+      // Notify participants about message expiration
+      emitSocketEvent(`user:${receiverId}`, 'message_expired', { messageId: message._id });
+      emitSocketEvent(`user:${senderId}`, 'message_expired', { messageId: message._id });
+    }, (duration || 30) * 1000);
 
-    return message;
+    // Return decrypted content for immediate use
+    const messageToReturn = {
+      ...message.toObject(),
+      content, // Original unencrypted content for immediate display
+    };
+
+    // Emit new message event with decrypted content
+    emitSocketEvent(`user:${receiverId}`, 'new_disappearing_message', {
+      message: messageToReturn,
+    });
+
+    return messageToReturn;
+
   } catch (error) {
     logger.error('Error in sendDisappearingMessageService:', error);
     throw error;
@@ -419,29 +556,24 @@ export const mentionUserService = async (messageId, userIds, mentionerId) => {
   try {
     const message = await Message.findById(messageId);
     if (!message) {
-      throw new NotFoundError('Message not found');
+      throw new NotFoundError("Message not found");
     }
 
-    // Add mentions
-    message.mentions.push(...userIds.map(userId => ({
-      userId,
-      mentionedBy: mentionerId,
-      timestamp: new Date()
-    })));
-
+    // Only push the userIds as ObjectIds
+    message.mentions.push(...userIds);
     await message.save();
 
     // Notify mentioned users
-    userIds.forEach(userId => {
-      emitSocketEvent(`user:${userId}`, 'mentioned', {
+    userIds.forEach((userId) => {
+      emitSocketEvent(`user:${userId}`, "mentioned", {
         messageId,
-        mentionedBy: mentionerId
+        mentionedBy: mentionerId,
       });
     });
 
     return message;
   } catch (error) {
-    logger.error('Error in mentionUserService:', error);
+    logger.error("Error in mentionUserService:", error);
     throw error;
   }
 };
@@ -741,44 +873,49 @@ export const scheduleMessageService = async ({
   scheduledFor,
   timezone,
   recurrence,
-  media
+  media,
 }) => {
   try {
     // Validate scheduling time
     const scheduledDate = new Date(scheduledFor);
     if (scheduledDate <= new Date()) {
-      throw new ValidationError('Schedule time must be in the future');
+      throw new ValidationError("Schedule time must be in the future");
     }
 
     // Handle media uploads if any
     let mediaUrls = [];
     if (media && media.length > 0) {
-      mediaUrls = await Promise.all(media.map(file => uploadToCloud(file)));
+      mediaUrls = await Promise.all(media.map((file) => uploadToCloud(file)));
     }
 
+    // Encrypt the content
+    const encryptedContent = await encryptMessage(content);
+
+    // Create scheduled message
     const scheduledMessage = await ScheduledMessage.create({
       senderId,
       recipients,
       content: {
-        text: content,
-        media: mediaUrls.map(url => ({
-          type: 'image',
-          url
-        }))
+        text: encryptedContent,
+        media: mediaUrls.map((url) => ({
+          type: "image",
+          url,
+        })),
+        isEncrypted: true,
       },
       schedule: {
         scheduledFor: scheduledDate,
         timezone,
-        recurrence: recurrence ? {
-          pattern: recurrence.pattern,
-          endDate: recurrence.endDate
-        } : undefined
-      }
+        recurrence,
+      },
+      delivery: {
+        status: "scheduled",
+      },
     });
 
     return scheduledMessage;
   } catch (error) {
-    logger.error('Error in scheduleMessageService:', error);
+    logger.error("Error in scheduleMessageService:", error);
     throw error;
   }
 };
@@ -786,37 +923,70 @@ export const scheduleMessageService = async ({
 /**
  * Get scheduled messages
  */
-export const getScheduledMessagesService = async (userId, { page, limit, status }) => {
+export const getScheduledMessagesService = async (
+  userId,
+  { page, limit, status }
+) => {
   try {
     const query = {
-      senderId: userId
+      senderId: userId,
     };
 
     if (status) {
-      query['delivery.status'] = status;
+      query["delivery.status"] = status;
     }
 
     const [messages, total] = await Promise.all([
       ScheduledMessage.find(query)
-        .sort({ 'schedule.scheduledFor': 1 })
+        .sort({ "schedule.scheduledFor": 1 })
         .skip((page - 1) * limit)
         .limit(limit)
-        .populate('recipients.users', 'username profilePicture')
-        .populate('recipients.groups', 'name')
-        .populate('recipients.channels', 'name'),
-      ScheduledMessage.countDocuments(query)
+        .populate("recipients.users", "username profilePicture")
+        .populate("recipients.groups", "name")
+        .populate("recipients.channels", "name")
+        .lean(),
+      ScheduledMessage.countDocuments(query),
     ]);
 
+    // Decrypt messages
+    const decryptedMessages = await Promise.all(
+      messages.map(async (msg) => {
+        try {
+          return {
+            ...msg,
+            content: {
+              ...msg.content,
+              text: msg.content.isEncrypted
+                ? await decryptMessage(msg.content.text)
+                : msg.content.text,
+            },
+          };
+        } catch (error) {
+          logger.error(
+            `Failed to decrypt scheduled message ${msg._id}:`,
+            error
+          );
+          return {
+            ...msg,
+            content: {
+              ...msg.content,
+              text: "[Decryption Failed]",
+            },
+          };
+        }
+      })
+    );
+
     return {
-      messages,
+      messages: decryptedMessages,
       pagination: {
         currentPage: page,
         totalPages: Math.ceil(total / limit),
-        totalMessages: total
-      }
+        totalMessages: total,
+      },
     };
   } catch (error) {
-    logger.error('Error in getScheduledMessagesService:', error);
+    logger.error("Error in getScheduledMessagesService:", error);
     throw error;
   }
 };
@@ -924,6 +1094,53 @@ export const removeReactionService = async (messageId, userId) => {
     return { message: 'Reaction removed successfully' };
   } catch (error) {
     logger.error('Error in removeReactionService:', error);
+    throw error;
+  }
+};
+
+// In messageService.js
+export const processScheduledMessages = async () => {
+  try {
+    const now = new Date();
+    
+    // Find all messages that should be sent
+    const messagesToSend = await ScheduledMessage.find({
+      'schedule.scheduledFor': { $lte: now },
+      'delivery.status': 'scheduled'
+    });
+
+    for (const message of messagesToSend) {
+      try {
+        // Send the message
+        await sendDirectMessageService({
+          senderId: message.senderId,
+          receiverId: message.recipients.users[0], // Assuming single recipient
+          content: await decryptMessage(message.content.text),
+          type: 'text',
+          media: message.content.media
+        });
+
+        // Update message status
+        message.delivery.status = 'sent';
+        message.delivery.attempts.push({
+          timestamp: new Date(),
+          status: 'sent'
+        });
+        await message.save();
+
+      } catch (error) {
+        logger.error(`Failed to process scheduled message ${message._id}:`, error);
+        message.delivery.status = 'failed';
+        message.delivery.attempts.push({
+          timestamp: new Date(),
+          status: 'failed',
+          error: error.message
+        });
+        await message.save();
+      }
+    }
+  } catch (error) {
+    logger.error('Error processing scheduled messages:', error);
     throw error;
   }
 };

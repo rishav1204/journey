@@ -28,6 +28,7 @@ import logger from "../utils/logger.js";
 import {
   ValidationError
 } from "../utils/errors.js";
+import mongoose from "mongoose"
 
 export const sendDirectMessage = async (req, res) => {
   try {
@@ -71,22 +72,25 @@ export const getDirectMessages = async (req, res) => {
     const { page = 1, limit = 50 } = req.query;
     const currentUserId = req.user.id;
 
-    const messages = await getDirectMessagesService(
+    logger.debug('Getting direct messages', { userId, currentUserId });
+
+    const result = await getDirectMessagesService(
       currentUserId,
       userId,
       parseInt(page),
       parseInt(limit)
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      data: messages,
+      data: result
     });
+
   } catch (error) {
-    logger.error("Error getting direct messages:", error);
-    res.status(error.status || 500).json({
+    logger.error('Error in getDirectMessages:', error.stack);
+    return res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || 'Internal server error'
     });
   }
 };
@@ -96,8 +100,11 @@ export const getConversations = async (req, res) => {
     const { page = 1, limit = 20 } = req.query;
     const userId = req.user.id;
 
+    // Convert userId to ObjectId
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
     const conversations = await getConversationsService(
-      userId,
+      userObjectId,
       parseInt(page),
       parseInt(limit)
     );
@@ -179,25 +186,25 @@ export const replyToThread = async (req, res) => {
   try {
     const { messageId } = req.params;
     const { content, type = "text", media } = req.body;
-    const userId = req.user.id;
+    const senderId = req.user.id; // Get from auth token
 
     const reply = await replyToThreadService({
       parentMessageId: messageId,
-      senderId: userId,
+      senderId,
       content,
       type,
-      media
+      media,
     });
 
     res.status(201).json({
       success: true,
-      data: reply
+      data: reply,
     });
   } catch (error) {
-    logger.error('Error replying to thread:', error);
+    logger.error("Error replying to thread:", error);
     res.status(error.status || 500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -249,43 +256,44 @@ export const getStarredMessages = async (req, res) => {
 export const updateMessageStatus = async (req, res) => {
   try {
     const { messageId } = req.params;
-    const { status } = req.body;
+    const { status } = req.body; // 'sent', 'delivered', 'read'
     const userId = req.user.id;
 
     await updateMessageStatusService(messageId, userId, status);
 
     res.status(200).json({
       success: true,
-      message: 'Message status updated successfully'
+      message: "Message status updated successfully",
     });
   } catch (error) {
-    logger.error('Error updating message status:', error);
+    logger.error("Error updating message status:", error);
     res.status(error.status || 500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
 
+// In chat-service/src/controllers/messageController.js
 export const sendDisappearingMessage = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const { content, type = "text", media, duration } = req.body;
+    const { userId: receiverId, content, duration, type = 'text', media } = req.body;
     const senderId = req.user.id;
 
     const message = await sendDisappearingMessageService({
       senderId,
-      receiverId: userId,
+      receiverId,
       content,
+      duration,
       type,
-      media,
-      duration
+      media
     });
 
     res.status(201).json({
       success: true,
       data: message
     });
+
   } catch (error) {
     logger.error('Error sending disappearing message:', error);
     res.status(error.status || 500).json({

@@ -14,6 +14,7 @@ import searchRoutes from "./routes/searchRoutes.js";
 import channelRoutes from "./routes/channelRoutes.js";
 import privacyRoutes from "./routes/privacyRoutes.js";
 import userSettingRoutes from "./routes/userSettingRoutes.js";
+import { processScheduledMessages } from "./services/messageService.js";
 
 const app = express();
 
@@ -27,6 +28,15 @@ app.use(
     credentials: true,
   })
 );
+
+// Process scheduled messages every minute
+setInterval(async () => {
+  try {
+    await processScheduledMessages();
+  } catch (error) {
+    logger.error('Scheduled message processing failed:', error);
+  }
+}, 60000);
 
 // Request logging middleware
 app.use((req, res, next) => {

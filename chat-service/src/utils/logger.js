@@ -42,22 +42,17 @@ const logger = winston.createLogger({
     })
   ),
   transports: [
-    // Error Log File
     new winston.transports.File({
       filename: "error.log",
       level: "error",
       maxFiles: 5,
-      maxsize: 5242880, // 5MB
+      maxsize: 5242880,
     }),
-
-    // Combined Log File
     new winston.transports.File({
       filename: "combined.log",
       maxFiles: 5,
       maxsize: 5242880,
     }),
-
-    // Discord Transport
     new DiscordTransport(),
   ],
 });
@@ -74,23 +69,5 @@ if (process.env.NODE_ENV !== "production") {
   );
 }
 
-// Helper Methods
-const logWithContext = (level, message, context = {}) => {
-  logger.log({
-    level,
-    message: typeof message === "object" ? JSON.stringify(message) : message,
-    ...context,
-  });
-};
-
-export default {
-  error: (message, context) => logWithContext("error", message, context),
-  warn: (message, context) => logWithContext("warn", message, context),
-  info: (message, context) => logWithContext("info", message, context),
-  debug: (message, context) => logWithContext("debug", message, context),
-  stream: {
-    write: (message) => {
-      logger.info(message.trim());
-    },
-  },
-};
+// Export logger directly
+export default logger;

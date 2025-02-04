@@ -1,47 +1,25 @@
 // src/utils/encryption.js
 import crypto from "crypto";
 import { promisify } from "util";
+import logger from "./logger.js";
 
 const algorithm = "aes-256-gcm";
-const keyLength = 32;
-const ivLength = 16;
-const saltLength = 64;
-const tagLength = 16;
 
-// Convert callback-based crypto functions to promise-based
-const scrypt = promisify(crypto.scrypt);
-const randomBytes = promisify(crypto.randomBytes);
-
-/**
- * Generate encryption key from password and salt
- */
-const generateKey = async (password, salt) => {
-  return scrypt(password, salt, keyLength);
+export const generateKey = async (password, salt) => {
+  return crypto.pbkdf2Sync(password, salt, 100000, 32, "sha256");
 };
 
-/**
- * Encrypt message content
- */
 export const encryptMessage = async (content) => {
   try {
-    // Generate random salt and IV
-    const salt = await randomBytes(saltLength);
-    const iv = await randomBytes(ivLength);
-
-    // Generate encryption key
+    const salt = crypto.randomBytes(16);
+    const iv = crypto.randomBytes(12);
     const key = await generateKey(process.env.MESSAGE_ENCRYPTION_KEY, salt);
 
-    // Create cipher
     const cipher = crypto.createCipheriv(algorithm, key, iv);
-
-    // Encrypt content
     let encrypted = cipher.update(content, "utf8", "hex");
     encrypted += cipher.final("hex");
-
-    // Get authentication tag
     const tag = cipher.getAuthTag();
 
-    // Combine all components for storage
     // Format: salt:iv:tag:encrypted
     return `${salt.toString("hex")}:${iv.toString("hex")}:${tag.toString(
       "hex"
@@ -52,34 +30,42 @@ export const encryptMessage = async (content) => {
   }
 };
 
-/**
- * Decrypt message content
- */
 export const decryptMessage = async (encryptedContent) => {
   try {
-    // Split components
-    const [salt, iv, tag, encrypted] = encryptedContent
-      .split(":")
-      .map((str) => Buffer.from(str, "hex"));
+    // Validate encrypted content format
+    if (
+      !encryptedContent ||
+      typeof encryptedContent !== "string" ||
+      !encryptedContent.includes(":")
+    ) {
+      logger.error("Invalid encrypted content format");
+      return "[Decryption Failed]";
+    }
 
-    // Generate decryption key
+    const [saltHex, ivHex, tagHex, encrypted] = encryptedContent.split(":");
+
+    if (!saltHex || !ivHex || !tagHex || !encrypted) {
+      logger.error("Missing encryption components");
+      return "[Decryption Failed]";
+    }
+
+    const salt = Buffer.from(saltHex, "hex");
+    const iv = Buffer.from(ivHex, "hex");
+    const tag = Buffer.from(tagHex, "hex");
     const key = await generateKey(process.env.MESSAGE_ENCRYPTION_KEY, salt);
 
-    // Create decipher
     const decipher = crypto.createDecipheriv(algorithm, key, iv);
     decipher.setAuthTag(tag);
 
-    // Decrypt content
     let decrypted = decipher.update(encrypted, "hex", "utf8");
     decrypted += decipher.final("utf8");
 
     return decrypted;
   } catch (error) {
     logger.error("Error decrypting message:", error);
-    throw new Error("Message decryption failed");
+    return "[Decryption Failed]";
   }
 };
-
 /**
  * Verify message integrity
  */

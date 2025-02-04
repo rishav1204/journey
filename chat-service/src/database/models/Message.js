@@ -25,7 +25,6 @@ const messageSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
     // Message Type and Media
     messageType: {
       type: String,
@@ -86,6 +85,10 @@ const messageSchema = new mongoose.Schema(
       },
     ],
     isStarred: { type: Boolean, default: false },
+    starredBy: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }],
 
     // Threading and Replies
     threadId: {

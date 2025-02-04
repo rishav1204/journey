@@ -62,7 +62,7 @@ router.patch("/:messageId/status", authMiddleware, updateMessageStatus);
 router.post("/disappearing", authMiddleware, sendDisappearingMessage);
 
 // Mention/tag users in messages
-router.post("/mentions", authMiddleware, mentionUser);
+router.post("/:messageId/mentions", authMiddleware, mentionUser);
 
 // Edit message content
 router.put("/:messageId", authMiddleware, editMessage);
