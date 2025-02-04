@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3012;
 
 // Test logging
 info("Starting application...");

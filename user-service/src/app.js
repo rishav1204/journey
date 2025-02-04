@@ -6,8 +6,13 @@ import helmet from 'helmet';
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-
+// Configure CORS - Allow all origins in development
+app.use(cors({
+  origin: "*", // In production, specify your exact domain
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+}));
 
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';

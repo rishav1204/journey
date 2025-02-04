@@ -1,11 +1,12 @@
+// app/auth/forgot-password.tsx
 import { StyleSheet } from 'react-native';
 import { ThemedView } from '@/components/ui/ThemedView';
 import { ThemedText } from '@/components/ui/ThemedText';
 
-export default function HomeScreen() {
+export default function ForgotPasswordScreen() {
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title">Welcome</ThemedText>
+      <ThemedText type="title">Reset Password</ThemedText>
     </ThemedView>
   );
 }
@@ -13,8 +14,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    padding: 16,
+  }
 });
