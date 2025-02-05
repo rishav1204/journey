@@ -4,16 +4,21 @@ import { error } from "../utils/errorLogger.js";
 dotenv.config();
 
 // Create a reusable transporter object using SMTP transport
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD, // Use the App Password here, not your regular Gmail password
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
+const createTransporter = () => {
+  return nodemailer.createTransport({
+    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+};
 
 /**
  * Send an email.
@@ -26,19 +31,21 @@ const transporter = nodemailer.createTransport({
  */
 export const sendEmail = async (to, subject, text, html) => {
   try {
+    const transporter = createTransporter();
+
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"Journey App" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       text,
       html,
     };
 
-    await transporter.sendMail(mailOptions);
-    return { message: "Email sent successfully" };
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent:", info.messageId);
+    return { success: true, messageId: info.messageId };
   } catch (err) {
-    error("Error sending email:", error);
-    throw new Error("Failed to send email");
+    error("Email service error:", err);
+    throw new Error(`Failed to send email: ${err.message}`);
   }
 };
-

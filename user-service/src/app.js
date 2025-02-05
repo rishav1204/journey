@@ -7,7 +7,13 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
+// Configure CORS
+app.use(cors({
+  origin: process.env.CLIENT_URL || "http://localhost:5173", // Allow your frontend URL
+  credentials: true, // Allow credentials (cookies, authorization headers, etc)
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'] // Allowed headers
+}));
 
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';

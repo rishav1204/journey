@@ -127,41 +127,40 @@ export const adminLogin = [
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-
     const response = await forgotPasswordService({ email });
-
     return res.status(200).json(response);
   } catch (err) {
-    error(err);
-    return res
-      .status(500)
-      .json({ message: "Server error during password reset." });
+    console.error("Forgot password error:", err);
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Failed to process password reset request",
+    });
   }
 };
 
 export const resetPassword = async (req, res) => {
   try {
-    const { email, otp, newPassword } = req.body;
+    const { newPassword, email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
 
     const response = await resetPasswordService({
       email,
-      otp,
       newPassword,
     });
 
     return res.status(200).json(response);
   } catch (err) {
-    error("Error in reset password:", error);
-
-    if (error.message === "Invalid OTP") {
-      return res.status(400).json({ message: error.message });
-    }
-
-    if (error.message === "OTP expired") {
-      return res.status(400).json({ message: error.message });
-    }
-
-    return res.status(500).json({ message: "Error resetting password" });
+    error("Error in reset password:", err);
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Error resetting password",
+    });
   }
 };
 

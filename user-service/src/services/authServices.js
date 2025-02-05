@@ -105,28 +105,27 @@ export const adminLoginService = async ({ email, password }) => {
 };
 
 
-export const resetPasswordService = async ({ email, otp, newPassword }) => {
-  // Verify OTP
-  const otpRecord = await OTP.findOne({ email, otp });
-  if (!otpRecord) {
-    throw new Error("Invalid OTP");
+export const resetPasswordService = async ({ newPassword, email }) => {
+  try {
+    // Hash new password
+    const hashedPassword = await hashPassword(newPassword);
+
+    // Update user's password
+    const updatedUser = await User.findOneAndUpdate(
+      { email },
+      { password: hashedPassword },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
+
+    return { success: true, message: "Password reset successful" };
+  } catch (err) {
+    error("Reset password error:", err);
+    throw new Error(err.message || "Error resetting password");
   }
-
-  if (otpRecord.expiresAt < Date.now()) {
-    await OTP.deleteOne({ _id: otpRecord._id });
-    throw new Error("OTP expired");
-  }
-
-  // Hash new password
-  const hashedPassword = await hashPassword(newPassword);
-
-  // Update user's password
-  await User.findOneAndUpdate({ email }, { password: hashedPassword });
-
-  // Delete used OTP
-  await OTP.deleteOne({ _id: otpRecord._id });
-
-  return { message: "Password reset successful" };
 };
 
 const googleClient = new OAuth2Client({
