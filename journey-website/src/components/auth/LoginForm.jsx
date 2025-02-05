@@ -31,7 +31,7 @@ const LoginForm = () => {
     try {
       const response = await authService.login(formData);
       localStorage.setItem("user", JSON.stringify(response.user));
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       setError(error.message || "Login failed");
     } finally {
