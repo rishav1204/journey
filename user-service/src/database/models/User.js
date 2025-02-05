@@ -109,6 +109,15 @@ const userSchema = new mongoose.Schema({
   postedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
   postedReels: [{ type: mongoose.Schema.Types.ObjectId, ref: "Reel" }],
 
+  followers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  following: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+
   // Reviews and Ratings
   reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
   ratings: [{ type: mongoose.Schema.Types.ObjectId, ref: "Rating" }],
