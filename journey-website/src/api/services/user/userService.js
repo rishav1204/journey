@@ -1,7 +1,7 @@
 // src/api/services/user/userService.js
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api/identity"; // Your user-service base URL
+const API_URL = "http://localhost:8080/api/identity"; // Your user-service base URL
 
 export const userService = {
   // Get user profile

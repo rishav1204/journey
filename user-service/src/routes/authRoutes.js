@@ -27,10 +27,10 @@ import { rateLimiter } from "../middlewares/rateLimiter.js";
 const router = express.Router();
 
 // Sign-up route (for new users)
-router.post("/sign-up", rateLimiter,validateSignUp, signUp); // Register a new user
+router.post("/sign-up", validateSignUp, signUp); // Register a new user
 
 // Login route (for users)
-router.post("/login", rateLimiter,validateLogin, login); // User login (email/social)
+router.post("/login", validateLogin, login); // User login (email/social)
 
 // Admin sign-up route
 router.post("/admin/sign-up", validateAdminSignUp, adminSignUp); // Register a new admin
