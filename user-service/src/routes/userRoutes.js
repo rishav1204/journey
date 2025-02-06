@@ -13,7 +13,7 @@ import {
   deleteAccount,
 } from "../controllers/userController.js";
 import { authenticate } from "../middlewares/authMiddleware.js";
-import { uploadProfilePic } from "../middlewares/upload.js";
+import { uploadProfilePic, handleMulterError } from "../middlewares/upload.js";
 import { validatePreferences } from "../middlewares/validationMiddleware.js";
 
 const router = express.Router();
@@ -35,7 +35,13 @@ router.post(
 router.put("/preferences", authenticate, updatePreferences); // Update preferences
 
 // Upload or edit profile picture
-router.post('/profile-pic', authenticate, uploadProfilePic, uploadOrEditProfilePic);
+router.post(
+  "/profile-pic",
+  authenticate, // Add authentication middleware first
+  uploadProfilePic,
+  handleMulterError,
+  uploadOrEditProfilePic
+);
 
 // Delete profile picture
 router.delete('/profile-pic', authenticate, deleteProfilePic);

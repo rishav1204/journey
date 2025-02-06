@@ -1,7 +1,7 @@
 // src/api/services/user/userService.js
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/identity"; // Your user-service base URL
+const API_URL = "http://localhost:8089/api/identity"; // Your user-service base URL
 
 export const userService = {
   // Get user profile
@@ -50,20 +50,25 @@ updatePreferences: async (preferences) => {
   }
 },
 
-  // Upload profile picture
-  uploadProfilePicture: async (formData) => {
-    try {
-      const response = await axios.post(`${API_URL}/profile-pic`, formData, {
+// Upload profile picture
+uploadProfilePicture: async (formData) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/profile-pic`, 
+      formData,
+      {
         headers: {
+          'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
         },
-      });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
-    }
-  },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Profile picture upload error:', error);
+    throw new Error(error.response?.data?.message || 'Failed to upload image');
+  }
+},
 
   // Update privacy settings
   updatePrivacySettings: async (settings) => {

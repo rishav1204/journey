@@ -11,7 +11,7 @@ import {
   deactivateAccountService,
   deleteAccountService,
 } from "../services/userServices.js";
-import { error } from "../utils/errorLogger.js"; // Importing error logger
+import logger from "../utils/errorLogger.js"; // Importing error logger
 
 // Get user profile
 export const getUserProfile = async (req, res) => {
@@ -19,7 +19,7 @@ export const getUserProfile = async (req, res) => {
     const userProfile = await getUserProfileService(req.user._id);
     return res.status(200).json(userProfile);
   } catch (err) {
-    error(err); // Log the error using error logger
+    logger.error(err); // Log the error using error logger
     return res
       .status(500)
       .json({ message: "Server error while fetching user profile." });
@@ -35,7 +35,7 @@ export const updateUserProfile = async (req, res) => {
     );
     return res.status(200).json(updatedUserProfile);
   } catch (err) {
-    error(err); // Log the error using error logger
+    logger.error(err); // Log the error using error logger
     return res
       .status(500)
       .json({ message: "Server error while updating user profile." });
@@ -51,7 +51,7 @@ export const updatePreferences = async (req, res) => {
     );
     return res.status(200).json(updatedPreferences);
   } catch (err) {
-    error(err); // Log the error using error logger
+    logger.error(err); // Log the error using error logger
     return res
       .status(500)
       .json({ message: "Error while updating preferences." });
@@ -61,6 +61,13 @@ export const updatePreferences = async (req, res) => {
 // Upload or edit profile picture
 export const uploadOrEditProfilePic = async (req, res) => {
   try {
+    if (!req.user?._id) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
     if (!req.file) {
       return res.status(400).json({
         success: false,
@@ -68,10 +75,10 @@ export const uploadOrEditProfilePic = async (req, res) => {
       });
     }
 
-    const result = await uploadOrEditProfilePicService(req.user._id, req.file.path);
+    const result = await uploadOrEditProfilePicService(req.user._id, req.file);
     return res.status(200).json(result);
   } catch (error) {
-    error(error); // Log the error using error logger
+    logger.error(error);
     return res.status(500).json({
       success: false,
       message: "Error uploading profile picture",
@@ -87,7 +94,7 @@ export const deleteProfilePic = async (req, res) => {
     const result = await deleteProfilePicService(req.user._id);
     return res.status(200).json(result);
   } catch (error) {
-    error(error); // Log the error using error logger
+    logger.error(error); // Log the error using error logger
     return res.status(500).json({
       success: false,
       message: "Error deleting profile picture",
@@ -106,7 +113,7 @@ export const updatePrivacySettings = async (req, res) => {
     });
     return res.status(200).json(result);
   } catch (error) {
-    error(error); // Log the error using error logger
+    logger.error(error); // Log the error using error logger
     return res.status(500).json({
       success: false,
       message: "Error updating privacy settings",
@@ -121,7 +128,7 @@ export const getFollowers = async (req, res) => {
     const followers = await getFollowersService(req.user._id);
     return res.status(200).json(followers);
   } catch (err) {
-    error(err); // Log the error using error logger
+    logger.error(err); // Log the error using error logger
     return res
       .status(500)
       .json({ message: "Error while fetching followers list." });
@@ -134,7 +141,7 @@ export const getFollowing = async (req, res) => {
     const following = await getFollowingService(req.user._id);
     return res.status(200).json(following);
   } catch (err) {
-    error(err); // Log the error using error logger
+    logger.error(err); // Log the error using error logger
     return res
       .status(500)
       .json({ message: "Error while fetching following list." });
@@ -153,7 +160,7 @@ export const deactivateAccount = async (req, res) => {
       .status(200)
       .json({ message: "Account deactivated successfully." });
   } catch (err) {
-    error(err);
+    logger.error(err);
     return res.status(500).json({
       message: "Error deactivating account",
       error: err.message,
@@ -168,7 +175,7 @@ export const deleteAccount = async (req, res) => {
     const result = await deleteAccountService(req.user._id);
     return res.status(200).json({ message: "Account deleted successfully." });
   } catch (err) {
-    error(err); // Log the error using error logger
+    logger.error(err); // Log the error using error logger
     return res.status(500).json({ message: "Error while deleting account." });
   }
 };
@@ -183,7 +190,7 @@ export const createPreferences = async (req, res) => {
     });
     res.status(201).json(result);
   } catch (error) {
-    error(error); // Log the error using error logger
+    logger.error(error); // Log the error using error logger
     res.status(400).json({ success: false, message: error.message });
   }
 };

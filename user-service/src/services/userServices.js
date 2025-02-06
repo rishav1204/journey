@@ -7,6 +7,7 @@ import {
   uploadProfilePicture,
   deleteFromCloudinary,
 } from "../utils/cloudinary.js";
+import { promises as fs } from "fs";
 
 // Get user profile
 export const getUserProfileService = async (userId) => {
@@ -64,22 +65,32 @@ export const updatePreferencesService = async (userId, preferencesData) => {
   };
 };
 
-// Upload or edit profile picture
 export const uploadOrEditProfilePicService = async (userId, file) => {
   try {
-    const result = await uploadProfilePicture(file);
+    // Upload to cloudinary
+    const uploadResult = await uploadProfilePicture(file);
 
+    // Update user profile
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
-        profilePicture: result.url,
-        cloudinaryPublicId: result.publicId,
+        profilePicture: uploadResult.url,
+        cloudinaryPublicId: uploadResult.publicId,
       },
       { new: true }
     );
 
-    // Clean up temp file
-    await fs.unlink(file.path);
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
+
+    // Clean up the temporary file
+    try {
+      await fs.unlink(file.path);
+    } catch (unlinkError) {
+      logger.error("Error deleting temporary file:", unlinkError);
+      // Continue execution even if cleanup fails
+    }
 
     return {
       success: true,
@@ -88,13 +99,15 @@ export const uploadOrEditProfilePicService = async (userId, file) => {
       },
     };
   } catch (error) {
-    if (file.path) {
-      await fs.unlink(file.path).catch(() => {});
+    // Attempt to clean up on error
+    try {
+      await fs.unlink(file.path);
+    } catch (unlinkError) {
+      logger.error("Error deleting temporary file:", unlinkError);
     }
     throw error;
   }
 };
-
 // Delete profile picture
 export const deleteProfilePicService = async (userId) => {
   try {
